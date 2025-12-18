@@ -1,75 +1,78 @@
-var UtilityMethods = (function () {
-    function UtilityMethods() {
-    };
-    // To execute toolbar click operation
-    UtilityMethods.prototype.toolbarClick = function(args)
-    {
+const {
+    NodeProperties,
+    ConnectorProperties,
+    TextProperties,
+  } = require('./common.js');
+  var textProperties = new TextProperties();
+class UtilityMethods {
+    constructor() { }
+
+    toolbarClick(args) {
         let item = args.item.tooltipText;
         var zoomCurrentValue = document.getElementById("btnZoomIncrement").ej2_instances[0];
-        switch(item)
-        {
+        switch (item) {
             case 'Undo':
-                diagram.undo();
+                diagram.ej2_instances[0].undo();
                 break;
             case 'Redo':
-                diagram.redo();
+                diagram.ej2_instances[0].redo();
                 break;
             case 'Zoom In(Ctrl + +)':
-                diagram.zoomTo({ type: 'ZoomIn', zoomFactor: 0.2 });
+                diagram.ej2_instances[0].zoomTo({ type: 'ZoomIn', zoomFactor: 0.2 });
                 zoomCurrentValue.content = diagram.scrollSettings.currentZoom = (diagram.scrollSettings.currentZoom * 100).toFixed() + '%';
                 break;
             case 'Zoom Out(Ctrl + -)':
-                diagram.zoomTo({ type: 'ZoomOut', zoomFactor: 0.2 });
+                diagram.ej2_instances[0].zoomTo({ type: 'ZoomOut', zoomFactor: 0.2 });
                 zoomCurrentValue.content = diagram.scrollSettings.currentZoom = (diagram.scrollSettings.currentZoom * 100).toFixed() + '%';
                 break;
             case 'Lock':
-                lockObject();
+                this.lockObject();
                 break;
             case 'Cut':
-                diagram.cut();
+                diagram.ej2_instances[0].cut();
                 break;
             case 'Copy':
-                diagram.copy();
+                diagram.ej2_instances[0].copy();
                 break;
             case 'Paste':
-                diagram.paste();
+                diagram.ej2_instances[0].paste();
                 break;
-            case'Delete':
-                 diagram.remove();
+            case 'Delete':
+                diagram.ej2_instances[0].remove();
                 break;
             case 'Select Tool':
-                diagram.clearSelection();
+                diagram.ej2_instances[0].clearSelection();
                 // diagram.drawingObject = {};
-                diagram.tool = ej.diagrams.DiagramTools.Default;
+                diagram.ej2_instances[0].tool = ej.diagrams.DiagramTools.Default;
                 break;
             case 'Text Tool':
                 // diagram.clearSelection();
-                diagram.selectedItems.userHandles = [];
-                diagram.drawingObject = { shape: { type: 'Text' }, };
-                diagram.tool = ej.diagrams.DiagramTools.ContinuousDraw;
+                diagram.ej2_instances[0].selectedItems.userHandles = [];
+                diagram.ej2_instances[0].drawingObject = { shape: { type: 'Text' }, };
+                diagram.ej2_instances[0].tool = ej.diagrams.DiagramTools.ContinuousDraw;
                 break;
             case 'Pan Tool':
-                diagram.clearSelection()
+                diagram.ej2_instances[0].clearSelection()
                 // diagram.drawingObject = {};
-                diagram.tool = ej.diagrams.DiagramTools.ZoomPan;
+                diagram.ej2_instances[0].tool = ej.diagrams.DiagramTools.ZoomPan;
                 break;
             case 'Rotate Clockwise':
-                diagram.rotate(diagram.selectedItems,90);
+                diagram.ej2_instances[0].rotate(diagram.ej2_instances[0].selectedItems, 90);
                 break;
             case 'Rotate Counter-clockwise':
-                diagram.rotate(diagram.selectedItems,-90);
+                diagram.ej2_instances[0].rotate(diagram.ej2_instances[0].selectedItems, -90);
                 break;
             case 'Bring To Front':
-                diagram.bringToFront();
+                diagram.ej2_instances[0].bringToFront();
                 break;
             case 'Send To Back':
-                diagram.sendToBack();
+                diagram.ej2_instances[0].sendToBack();
                 break;
             case 'Bring Forward':
-                diagram.moveForward();
+                diagram.ej2_instances[0].moveForward();
                 break;
             case 'Send Backward':
-                diagram.sendBackward();
+                diagram.ej2_instances[0].sendBackward();
                 break;
             case 'Align Left':
             case 'Align Right':
@@ -80,30 +83,29 @@ var UtilityMethods = (function () {
                 // selectedItem.isModified = true;
                 var alignType = item.replace('Align', '');
                 var alignType1 = alignType.charAt(0).toUpperCase() + alignType.slice(1);
-                diagram.align(alignType1.trim());
+                diagram.ej2_instances[0].align(alignType1.trim());
                 break;
             case 'Distribute Objects Horizontally':
-                diagram.distribute('RightToLeft');
+                diagram.ej2_instances[0].distribute('RightToLeft');
                 break;
             case 'Distribute Objects Vertically':
-                diagram.distribute('BottomToTop');
+                diagram.ej2_instances[0].distribute('BottomToTop');
                 break;
-             case 'Group':
-                diagram.group();
+            case 'Group':
+                diagram.ej2_instances[0].group();
                 args.item.prefixIcon = 'sf-icon-ungroup';
                 args.item.tooltipText = 'UnGroup';
                 break;
             case 'UnGroup':
-                diagram.unGroup();
+                diagram.ej2_instances[0].unGroup();
                 args.item.prefixIcon = 'sf-icon-group';
                 args.item.tooltipText = 'Group';
                 break;
             case 'New Diagram':
-                diagram.clear();
-                DiagramClientSideEvents.prototype.historyChange();
+                diagram.ej2_instances[0].clear();
                 break;
             case 'Print Diagram':
-                printDialog.show();
+                this.btnPrintClick();
                 break;
             case 'Export Diagram':
                 exportDialog.show();
@@ -115,100 +117,122 @@ var UtilityMethods = (function () {
                 document.getElementsByClassName('e-file-select-wrap')[0].querySelector('button').click();
                 break;
             case 'Flip Vertical':
-                flipObjects(item);
+                this.flipObjects(item);
                 break;
             case 'Flip Horizontal':
-                flipObjects(item);
+                this.flipObjects(item);
                 break;
         }
-        if (item === 'Select Tool' || item === 'Pan Tool' || item === 'Text Tool' ) {
+        if (item === 'Select Tool' || item === 'Pan Tool' || item === 'Text Tool') {
             if (args.item.cssClass.indexOf('tb-item-selected') === -1) {
                 this.removeSelectedToolbarItem();
                 args.item.cssClass += ' tb-item-selected';
             }
         }
-        diagram.dataBind();
-     };
-     // To execute menubar click operation
-    UtilityMethods.prototype.menuClick = function(args)
-    {
+        diagram.ej2_instances[0].dataBind();
+    }
+    // To lock diagram object
+    lockObject(args) {
+        for (var i = 0; i < diagram.ej2_instances[0].selectedItems.nodes.length; i++) {
+            var node = diagram.ej2_instances[0].selectedItems.nodes[i];
+            if (node.constraints & ej.diagrams.NodeConstraints.Drag) {
+                node.constraints = ej.diagrams.NodeConstraints.PointerEvents | ej.diagrams.NodeConstraints.Select;
+            } else {
+                node.constraints = ej.diagrams.NodeConstraints.Default;
+            }
+        }
+        for (var j = 0; j < diagram.ej2_instances[0].selectedItems.connectors.length; j++) {
+            var connector = diagram.ej2_instances[0].selectedItems.connectors[j];
+            if (connector.constraints & ej.diagrams.ConnectorConstraints.Drag) {
+                connector.constraints = ej.diagrams.ConnectorConstraints.PointerEvents | ej.diagrams.ConnectorConstraints.Select;
+            } else {
+                connector.constraints = ej.diagrams.ConnectorConstraints.Default;
+            }
+        }
+        diagram.ej2_instances[0].dataBind();
+    }
+    // To flip diagram objects
+    flipObjects(flipType) {
+        var selectedObjects = diagram.ej2_instances[0].selectedItems.nodes.concat(diagram.ej2_instances[0].selectedItems.connectors);
+        for (let i = 0; i < selectedObjects.length; i++) {
+            selectedObjects[i].flip ^= flipType === 'Flip Horizontal' ? ej.diagrams.FlipDirection.Horizontal : ej.diagrams.FlipDirection.Vertical;
+        }
+        diagram.ej2_instances[0].dataBind();
+    }
+    menuClick(args) {
         var buttonElement = document.getElementsByClassName('e-btn-hover')[0];
         if (buttonElement) {
             buttonElement.classList.remove('e-btn-hover');
         }
         var option = args.item.text;
-        switch(option)
-        {
+        switch (option) {
             case 'New':
-                diagram.clear();
-                DiagramClientSideEvents.prototype.historyChange();
+                diagram.ej2_instances[0].clear();
                 break;
             case 'Save':
-                this.download(diagram.saveDiagram());
+                this.download(diagram.ej2_instances[0].saveDiagram());
                 break;
             case 'Print':
-                printSettings.pageHeight = pageSettings.pageHeight;
-                printSettings.pageWidth = pageSettings.pageWidth;
-                printDialog.show();
+                this.btnPrintClick();
                 break;
             case 'Export':
-                exportDialog.show();
+                exportDialog.ej2_instances[0].show();
                 break;
             case 'Open':
                 document.getElementsByClassName('e-file-select-wrap')[0].querySelector('button').click();
                 break;
             case 'Undo':
-                diagram.undo();
+                diagram.ej2_instances[0].undo();
                 break;
             case 'Redo':
-                diagram.redo();
+                diagram.ej2_instances[0].redo();
                 break;
             case 'Cut':
-                diagram.cut();
+                diagram.ej2_instances[0].cut();
                 break;
             case 'Copy':
-                diagram.copy();
+                diagram.ej2_instances[0].copy();
                 break;
             case 'Paste':
-                diagram.paste();
+                diagram.ej2_instances[0].paste();
                 break;
             case 'Rotate Right 90':
-                diagram.rotate(diagram.selectedItems,90);
+                diagram.ej2_instances[0].rotate(diagram.ej2_instances[0].selectedItems, 90);
                 break;
             case 'Rotate Left 90':
-                diagram.rotate(diagram.selectedItems,-90);
+                diagram.ej2_instances[0].rotate(diagram.ej2_instances[0].selectedItems, -90);
                 break;
             case 'Flip Vertical':
-                flipObjects(option);
+                this.flipObjects(option);
                 break;
             case 'Flip Horizontal':
-                flipObjects(option);
+                this.flipObjects(option);
                 break;
             case 'Delete':
-                diagram.remove();
+                diagram.ej2_instances[0].remove();
             case 'Send To Back':
-                diagram.sendToBack();
+                diagram.ej2_instances[0].sendToBack();
                 break;
             case 'Bring To Front':
-                diagram.bringToFront();
+                diagram.ej2_instances[0].bringToFront();
                 break;
             case 'Send Backward':
-                diagram.sendBackward();
+                diagram.ej2_instances[0].sendBackward();
                 break;
             case 'Bring Forward':
-                diagram.moveForward();
+                diagram.ej2_instances[0].moveForward();
                 break;
             case 'Landscape':
                 args.item.parentObj.items[1].iconCss = '';
                 args.item.iconCss = 'sf-icon-check-tick';
-                diagram.pageSettings.orientation = 'Landscape';
+                diagram.ej2_instances[0].pageSettings.orientation = 'Landscape';
                 document.getElementById('pageLandscape').classList.add('e-active');
                 document.getElementById('pagePortrait').classList.remove('e-active');
                 break;
             case 'Portrait':
                 args.item.parentObj.items[0].iconCss = '';
                 args.item.iconCss = 'sf-icon-check-tick';
-                diagram.pageSettings.orientation = 'Portrait';
+                diagram.ej2_instances[0].pageSettings.orientation = 'Portrait';
                 document.getElementById('pagePortrait').classList.add('e-active');
                 document.getElementById('pageLandscape').classList.remove('e-active');
                 break;
@@ -220,166 +244,158 @@ var UtilityMethods = (function () {
             case 'A6 (105 mm x 148 mm)':
             case 'Tabloid (279 mm x 432 mm)':
                 this.paperListChange(args)
-                pageSettingsList.text = args.item.text;
+                pageSettingsList.ej2_instances[0].text = args.item.text;
                 this.updateSelection(args.item)
                 break;
             case 'Select All':
-                diagram.clearSelection();
-                diagram.selectAll();
+                diagram.ej2_instances[0].clearSelection();
+                diagram.ej2_instances[0].selectAll();
                 break;
             case 'Select All Nodes':
-                diagram.clearSelection();
-                diagram.select(diagram.nodes);
+                diagram.ej2_instances[0].clearSelection();
+                diagram.ej2_instances[0].select(diagram.ej2_instances[0].nodes);
                 break;
             case 'Select All Connectors':
-                diagram.clearSelection();
-                diagram.select(diagram.connectors);
+                diagram.ej2_instances[0].clearSelection();
+                diagram.ej2_instances[0].select(diagram.ej2_instances[0].connectors);
                 break;
             case 'Deselect All':
-                diagram.clearSelection();
+                diagram.ej2_instances[0].clearSelection();
                 break;
             case 'Selection Tool':
-                diagram.tool = ej.diagrams.DiagramTools.Default;
+                diagram.ej2_instances[0].tool = ej.diagrams.DiagramTools.Default;
                 this.removeSelectedToolbarItem();
                 break;
             case 'Pan Tool':
-                diagram.clearSelection();
-                diagram.tool = ej.diagrams.DiagramTools.ZoomPan;
+                diagram.ej2_instances[0].clearSelection();
+                diagram.ej2_instances[0].tool = ej.diagrams.DiagramTools.ZoomPan;
                 this.removeSelectedToolbarItem();
                 break;
             case 'Orthogonal':
-                diagram.clearSelection();
-                diagram.drawingObject.sourceID = '';
-                diagram.tool = ej.diagrams.DiagramTools.ContinuousDraw;
-                diagram.selectedItems.userHandles = [];
-                diagram.drawingObject.type = 'Orthogonal';
-                diagram.drawingObject.shape = {type:'Bpmn',sequence:'Normal'};
+                diagram.ej2_instances[0].clearSelection();
+                diagram.ej2_instances[0].drawingObject.sourceID = '';
+                diagram.ej2_instances[0].tool = ej.diagrams.DiagramTools.ContinuousDraw;
+                diagram.ej2_instances[0].selectedItems.userHandles = [];
+                diagram.ej2_instances[0].drawingObject.type = 'Orthogonal';
+                diagram.ej2_instances[0].drawingObject.shape = { type: 'Bpmn', sequence: 'Normal' };
                 this.removeSelectedToolbarItem();
                 break;
             case 'Straight':
-                diagram.clearSelection();
-                diagram.drawingObject.sourceID = '';
-                diagram.tool = ej.diagrams.DiagramTools.ContinuousDraw;
-                diagram.selectedItems.userHandles = [];
-                diagram.drawingObject.type = 'Straight';
-                diagram.drawingObject.shape = {type:'Bpmn',sequence:'Normal'};
+                diagram.ej2_instances[0].clearSelection();
+                diagram.ej2_instances[0].drawingObject.sourceID = '';
+                diagram.ej2_instances[0].tool = ej.diagrams.DiagramTools.ContinuousDraw;
+                diagram.ej2_instances[0].selectedItems.userHandles = [];
+                diagram.ej2_instances[0].drawingObject.type = 'Straight';
+                diagram.ej2_instances[0].drawingObject.shape = { type: 'Bpmn', sequence: 'Normal' };
                 this.removeSelectedToolbarItem();
                 break;
             case 'Bezier':
-                diagram.clearSelection();
-                diagram.drawingObject.sourceID = '';
-                diagram.tool = ej.diagrams.DiagramTools.ContinuousDraw;
-                diagram.selectedItems.userHandles = [];
-                diagram.drawingObject.type = 'Bezier';
-                diagram.drawingObject.shape = {type:'Bpmn',sequence:'Normal'};
+                diagram.ej2_instances[0].clearSelection();
+                diagram.ej2_instances[0].drawingObject.sourceID = '';
+                diagram.ej2_instances[0].tool = ej.diagrams.DiagramTools.ContinuousDraw;
+                diagram.ej2_instances[0].selectedItems.userHandles = [];
+                diagram.ej2_instances[0].drawingObject.type = 'Bezier';
+                diagram.ej2_instances[0].drawingObject.shape = { type: 'Bpmn', sequence: 'Normal' };
                 this.removeSelectedToolbarItem();
                 break;
             case 'Show Lines':
-                diagram.snapSettings.constraints = diagram.snapSettings.constraints ^ ej.diagrams.SnapConstraints.ShowLines;
+                diagram.ej2_instances[0].snapSettings.constraints = diagram.ej2_instances[0].snapSettings.constraints ^ ej.diagrams.SnapConstraints.ShowLines;
                 args.item.iconCss = args.item.iconCss ? '' : 'sf-icon-check-tick';
                 break;
             case 'Snap To Grid':
-                diagram.snapSettings.constraints = diagram.snapSettings.constraints ^ ej.diagrams.SnapConstraints.SnapToLines;
+                diagram.ej2_instances[0].snapSettings.constraints = diagram.ej2_instances[0].snapSettings.constraints ^ ej.diagrams.SnapConstraints.SnapToLines;
                 args.item.iconCss = args.item.iconCss ? '' : 'sf-icon-check-tick';
                 break;
             case 'Snap To Object':
-                diagram.snapSettings.constraints = diagram.snapSettings.constraints ^ ej.diagrams.SnapConstraints.SnapToObject;
+                diagram.ej2_instances[0].snapSettings.constraints = diagram.ej2_instances[0].snapSettings.constraints ^ ej.diagrams.SnapConstraints.SnapToObject;
                 args.item.iconCss = args.item.iconCss ? '' : 'sf-icon-check-tick';
                 break;
             case 'Show Ruler':
                 args.item.iconCss = args.item.iconCss ? '' : 'sf-icon-check-tick';
-                diagram.rulerSettings.showRulers = !diagram.rulerSettings.showRulers;
+                diagram.ej2_instances[0].rulerSettings.showRulers = !diagram.ej2_instances[0].rulerSettings.showRulers;
                 break;
             case 'Show Page Breaks':
                 args.item.iconCss = args.item.iconCss ? '' : 'sf-icon-check-tick';
-                diagram.pageSettings.showPageBreaks = !diagram.pageSettings.showPageBreaks;
-                showPageBreaks.checked = !showPageBreaks.checked;
+                diagram.ej2_instances[0].pageSettings.showPageBreaks = !diagram.ej2_instances[0].pageSettings.showPageBreaks;
+                showPageBreaks.ej2_instances[0].checked = !showPageBreaks.ej2_instances[0].checked;
                 break;
-            case 'Show Multiple page':
+            case 'Show Multiple Page':
                 args.item.iconCss = args.item.iconCss ? '' : 'sf-icon-check-tick';
-                diagram.pageSettings.multiplePage = ! diagram.pageSettings.multiplePage;
+                diagram.ej2_instances[0].pageSettings.multiplePage = !diagram.ej2_instances[0].pageSettings.multiplePage;
                 break;
             case 'Fit To Width':
-                diagram.fitToPage({mode:'Width'});
+                diagram.ej2_instances[0].fitToPage({ mode: 'Width' });
                 break;
             case 'Fit To Page':
-                diagram.fitToPage({ mode: 'Page', region: 'Content'});
+                diagram.ej2_instances[0].fitToPage({ mode: 'Page', region: 'Content' });
                 break;
         }
         if (option === 'Pan Tool') {
-            if (toolbarObj.items[3].cssClass.indexOf('tb-item-selected') === -1) {
-                toolbarObj.items[3].cssClass += ' tb-item-selected';
+            if (toolbarObj.ej2_instances[0].items[3].cssClass.indexOf('tb-item-selected') === -1) {
+                toolbarObj.ej2_instances[0].items[3].cssClass += ' tb-item-selected';
             }
         }
-       else if (option === 'Selection Tool') {
-            if (toolbarObj.items[4].cssClass.indexOf('tb-item-selected') === -1) {
-                toolbarObj.items[4].cssClass += ' tb-item-selected';
+        else if (option === 'Selection Tool') {
+            if (toolbarObj.ej2_instances[0].items[4].cssClass.indexOf('tb-item-selected') === -1) {
+                toolbarObj.ej2_instances[0].items[4].cssClass += ' tb-item-selected';
             }
         }
-        else if (option ===  'Orthogonal' || option === 'Straight' || option === 'Bezier') {
+        else if (option === 'Orthogonal' || option === 'Straight' || option === 'Bezier') {
             document.getElementById('conTypeBtn').classList.add('tb-item-selected');
         }
-        diagram.dataBind();
-    };
-    // To download diagram json.
-    UtilityMethods.prototype.download = function(data)
-    {
+        diagram.ej2_instances[0].dataBind();
+    }
+
+    download(data) {
         if (window.navigator.msSaveBlob) {
             var blob = new Blob([data], { type: 'data:text/json;charset=utf-8,' });
             window.navigator.msSaveOrOpenBlob(blob, 'Diagram.json');
-        }
-        else {
+        } else {
             var dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(data);
             var a = document.createElement('a');
             a.href = dataStr;
-            a.download = document.getElementById('diagramName').innerHTML+'.json';
+            a.download = document.getElementById('diagramName').innerHTML + '.json';
             document.body.appendChild(a);
             a.click();
             a.remove();
         }
-    };
-    // To update paper selection in menubar
-    UtilityMethods.prototype.updateSelection = function(item)
-    {
-        for(i=0;i<item.parentObj.items.length;i++)
-        {
-            if(item.text === item.parentObj.items[i].text){
+    }
+
+    updateSelection(item) {
+        for (let i = 0; i < item.parentObj.items.length; i++) {
+            if (item.text === item.parentObj.items[i].text) {
                 item.parentObj.items[i].iconCss = 'sf-icon-check-tick';
-            }
-            else{
+            } else {
                 item.parentObj.items[i].iconCss = '';
             }
         }
-    };
-    // To activate connector drawing tool
-    UtilityMethods.prototype.onConnectorSelect = function(args)
-    {
-        diagram.clearSelection();
-        diagram.drawingObject.sourceID = '';
-        diagram.drawingObject.type = args.item.text;
-        diagram.drawingObject.shape = {type:'Bpmn',sequence:'Normal'};
-        diagram.tool = ej.diagrams.DiagramTools.ContinuousDraw;
-        diagram.selectedItems.userHandles = [];
-        diagram.dataBind();
+    }
+
+    onConnectorSelect(args) {
+        diagram.ej2_instances[0].clearSelection();
+        diagram.ej2_instances[0].drawingObject.sourceID = '';
+        diagram.ej2_instances[0].drawingObject.type = args.item.text;
+        diagram.ej2_instances[0].drawingObject.shape = { type: 'Bpmn', sequence: 'Normal' };
+        diagram.ej2_instances[0].tool = ej.diagrams.DiagramTools.ContinuousDraw;
+        diagram.ej2_instances[0].selectedItems.userHandles = [];
+        diagram.ej2_instances[0].dataBind();
         this.removeSelectedToolbarItem();
         document.getElementById('conTypeBtn').classList.add('tb-item-selected');
-    };
-    // To remove toolbar selected item
-    UtilityMethods.prototype.removeSelectedToolbarItem = function()
-    {
-        for (var i = 0; i < toolbarObj.items.length; i++) {
-            var item = toolbarObj.items[i];
+    }
+
+    removeSelectedToolbarItem() {
+        for (let i = 0; i < toolbarObj.ej2_instances[0].items.length; i++) {
+            let item = toolbarObj.ej2_instances[0].items[i];
             if (item.cssClass.indexOf('tb-item-selected') !== -1) {
                 item.cssClass = item.cssClass.replace(' tb-item-selected', '');
             }
         }
-        toolbarObj.dataBind();
+        toolbarObj.ej2_instances[0].dataBind();
         document.getElementById('conTypeBtn').classList.remove('tb-item-selected');
-    };
-    // To get paper size
-    UtilityMethods.prototype.getPaperSize = function(args)
-    {
-        var paperSize = new PaperSize();
+    }
+
+    getPaperSize(args) {
+        const paperSize = {};
         switch (args) {
             case 'Letter':
                 paperSize.pageWidth = 816;
@@ -397,11 +413,11 @@ var UtilityMethods = (function () {
                 paperSize.pageWidth = 3179;
                 paperSize.pageHeight = 4494;
                 break;
-             case 'A1':
+            case 'A1':
                 paperSize.pageWidth = 2245;
                 paperSize.pageHeight = 3179;
                 break;
-             case 'A2':
+            case 'A2':
                 paperSize.pageWidth = 1587;
                 paperSize.pageHeight = 2245;
                 break;
@@ -423,139 +439,128 @@ var UtilityMethods = (function () {
                 break;
         }
         return paperSize
-    };
-    // To update page paper size
-    UtilityMethods.prototype.paperListChange = function(args)
-    {
+    }
+
+    paperListChange(args) {
         document.getElementById('pageDimension').style.display = 'none';
         document.getElementById('pageOrientation').style.display = '';
+        const viewmenu = document.getElementById('diagram-menu').ej2_instances[0];  
         var value = args.value || args.item.value;
         var paperSize = this.getPaperSize(value);
         var pageWidth = paperSize.pageWidth;
         var pageHeight = paperSize.pageHeight;
         if (pageWidth && pageHeight) {
-            if (diagram.pageSettings.orientation === 'Portrait') {
+            if (diagram.ej2_instances[0].pageSettings.orientation === 'Portrait') {
                 if (pageWidth > pageHeight) {
                     var temp = pageWidth;
                     pageWidth = pageHeight;
                     pageHeight = temp;
                 }
-            }
-            else {
+            } else {
                 if (pageHeight > pageWidth) {
                     var temp = pageHeight;
                     pageHeight = pageWidth;
                     pageWidth = temp;
                 }
             }
-            diagram.pageSettings.width = pageWidth;
-            diagram.pageSettings.height = pageHeight;
-        }
-        else{
+            diagram.ej2_instances[0].pageSettings.width = pageWidth;
+            diagram.ej2_instances[0].pageSettings.height = pageHeight;
+        } else {
             document.getElementById('pageOrientation').style.display = 'none';
             document.getElementById('pageDimension').style.display = '';
-            diagram.pageSettings.width = 1460;
-            diagram.pageSettings.height = 600;
+            diagram.ej2_instances[0].pageSettings.width = 1460;
+            diagram.ej2_instances[0].pageSettings.height = 600;
         }
-        this.updatePaperSelection(designContextMenu.items[1],args.value);
-        diagram.dataBind();
-    };
-    // To change the page orientation 
-    UtilityMethods.prototype.pageOrientationChange = function(args)
-    {
+        this.updatePaperSelection(viewmenu.items[2], args.value);
+        diagram.ej2_instances[0].dataBind();
+    }
+
+    pageOrientationChange(args) {
+        const btnViewMenu = document.getElementById('diagram-menu').ej2_instances[0];
         if (args.target) {
-            var target = args.target;
-            var items = designContextMenu.items;
-            var option = target.id ? target.id : (args.currentTarget.ej2_instances[0].iconCss === 'sf-icon-portrait'? 'pagePortrait':'pageLandscape');  
+            let target = args.target;
+            let items = btnViewMenu.items[2].items;
+            var option = target.id ? target.id : (args.currentTarget.ej2_instances[0].iconCss === 'sf-icon-portrait' ? 'pagePortrait' : 'pageLandscape');
             switch (option) {
                 case 'pagePortrait':
-                    diagram.pageSettings.isPortrait = true;
-                    diagram.pageSettings.isLandscape = false;
-                    diagram.pageSettings.orientation = 'Portrait';
+                    diagram.ej2_instances[0].pageSettings.isPortrait = true;
+                    diagram.ej2_instances[0].pageSettings.isLandscape = false;
+                    diagram.ej2_instances[0].pageSettings.orientation = 'Portrait';
                     items[0].items[0].iconCss = '';
                     items[0].items[1].iconCss = 'sf-icon-check-tick';
                     document.getElementById('pageLandscape').classList.remove('e-active');
                     break;
                 case 'pageLandscape':
-                    diagram.pageSettings.isPortrait = false;
-                    diagram.pageSettings.isLandscape = true;
-                    diagram.pageSettings.orientation = 'Landscape';
+                    diagram.ej2_instances[0].pageSettings.isPortrait = false;
+                    diagram.ej2_instances[0].pageSettings.isLandscape = true;
+                    diagram.ej2_instances[0].pageSettings.orientation = 'Landscape';
                     items[0].items[0].iconCss = 'sf-icon-check-tick';
                     items[0].items[1].iconCss = '';
                     document.getElementById('pagePortrait').classList.remove('e-active');
                     break;
             }
-            diagram.dataBind();
+            diagram.ej2_instances[0].dataBind();
         }
-    };
-    // To change page width and height
-    UtilityMethods.prototype.pageDimensionChange = function(args)
-    {
+    }
+
+    pageDimensionChange(args) {
         if (args.event) {
-            var pageWidth = Number(diagram.pageSettings.width);
-            var pageHeight = Number(diagram.pageSettings.height);
+            let pageWidth = Number(diagram.ej2_instances[0].pageSettings.width);
+            let pageHeight = Number(diagram.ej2_instances[0].pageSettings.height);
             var target = args.event.target;
             if (target.tagName.toLowerCase() === 'span') {
                 target = target.parentElement.children[0];
             }
             if (target.id === 'pageWidth') {
                 pageWidth = Number(target.value.replace(/,/g, ''));
-            }
-            else {
+            } else {
                 pageHeight = Number(target.value.replace(/,/g, ''));
             }
             if (pageWidth && pageHeight) {
                 if (pageWidth > pageHeight) {
-                    diagram.pageSettings.isPortrait = false;
-                    diagram.pageSettings.isLandscape = true;
-                    diagram.pageSettings.orientation = 'Landscape';
+                    diagram.ej2_instances[0].pageSettings.isPortrait = false;
+                    diagram.ej2_instances[0].pageSettings.isLandscape = true;
+                    diagram.ej2_instances[0].pageSettings.orientation = 'Landscape';
+                } else {
+                    diagram.ej2_instances[0].pageSettings.isPortrait = true;
+                    diagram.ej2_instances[0].pageSettings.isLandscape = false;
+                    diagram.ej2_instances[0].pageSettings.orientation = 'Portrait';
                 }
-                else {
-                    diagram.pageSettings.isPortrait = true;
-                    diagram.pageSettings.isLandscape = false;
-                    diagram.pageSettings.orientation = 'Portrait';
-                }
-                 diagram.pageSettings.width = pageWidth;
-                 diagram.pageSettings.height = pageHeight;
-                diagram.dataBind();
+                diagram.ej2_instances[0].pageSettings.width = pageWidth;
+                diagram.ej2_instances[0].pageSettings.height = pageHeight;
+                diagram.ej2_instances[0].dataBind();
             }
         }
-    };
-    // To change page background color
-    UtilityMethods.prototype.pageBackgroundChange1= function(args)
-    {
+    }
+
+    pageBackgroundChange1(args) {
         if (args.currentValue) {
-            diagram.pageSettings.background = {
+            diagram.ej2_instances[0].pageSettings.background = {
                 color: args.currentValue.rgba
             };
             // document.getElementById('background').style.display = 'none';
-            diagram.dataBind();
+            diagram.ej2_instances[0].dataBind();
         }
-    };
-    //To enable or disable page breaks
-    UtilityMethods.prototype.pageBreaksChange = function(args)
-    {
+    }
+
+    pageBreaksChange(args) {
         if (args.event) {
-            diagram.pageSettings.showPageBreaks = args.checked;
-            diagram.dataBind();
+            diagram.ej2_instances[0].pageSettings.showPageBreaks = args.checked;
+            diagram.ej2_instances[0].dataBind();
         }
-    };
-    // To update the selected papersize in menubar.
-    UtilityMethods.prototype.updatePaperSelection = function(items,value)
-    {
-        for(i=0;i<items.items.length;i++)
-        {
-         if(value === items.items[i].value){
-             items.items[i].iconCss = 'sf-icon-check-tick';
-         }
-         else{
-             items.items[i].iconCss = '';
-         }
+    }
+
+    updatePaperSelection(items, value) {
+        for (let i = 0; i < items.items.length; i++) {
+            if (value === items.items[i].value) {
+                items.items[i].iconCss = 'sf-icon-check-tick';
+            } else {
+                items.items[i].iconCss = '';
+            }
         }
-    };
-    // To align text 
-    UtilityMethods.prototype.updateTextAlign= function(textAlign)
-    {
+    }
+
+    updateTextAlign(textAlign) {
         var toolbarTextSubAlignment = document.getElementById('toolbarTextSubAlignment');
         if (toolbarTextSubAlignment) {
             toolbarTextSubAlignment = toolbarTextSubAlignment.ej2_instances[0];
@@ -567,10 +572,9 @@ var UtilityMethods = (function () {
             var index = textAlign === 'Left' ? 0 : (textAlign === 'Center' ? 1 : 2);
             toolbarTextSubAlignment.items[index].cssClass = toolbarTextSubAlignment.items[index].cssClass + ' tb-item-selected';
         }
-    };
-    // To update font appearence
-    UtilityMethods.prototype.updateTextProperties = function(propertyName, propertyValue, annotation)
-    {
+    }
+
+    updateTextProperties(propertyName, propertyValue, annotation) {
         switch (propertyName) {
             case 'bold':
                 annotation.bold = !annotation.bold;
@@ -583,7 +587,7 @@ var UtilityMethods = (function () {
             case 'underline':
                 textProperties.textDecoration = !textProperties.textDecoration;
                 annotation.textDecoration = annotation.textDecoration === 'None' || !annotation.textDecoration ? 'Underline' : 'None';
-                this.updateToolbarState('toolbarTextStyle',annotation.textDecoration!=='None', 2);
+                this.updateToolbarState('toolbarTextStyle', annotation.textDecoration !== 'None', 2);
                 break;
             case 'aligntextleft':
             case 'aligntextright':
@@ -592,34 +596,32 @@ var UtilityMethods = (function () {
                 this.updateTextAlign(annotation.textAlign);
                 break;
         }
-    };
-    // To update font styles 
-    UtilityMethods.prototype.updateTextFontProperties = function(propertyName, annotation)
-    {
+    }
+
+    updateTextFontProperties(propertyName, annotation, args) {
         switch (propertyName) {
             case 'fontfamily':
-                annotation.fontFamily = textProperties.fontFamily.value;
+                annotation.fontFamily = args.propertyValue.value;
                 break;
             case 'fontsize':
-                annotation.fontSize = textProperties.fontSize.value;
+                annotation.fontSize = args.propertyValue.value;
                 break;
             case 'fontcolor':
-                annotation.color = this.getColor(textProperties.fontColor.value);
+                annotation.color = this.getColor(args.propertyValue.value);
                 break;
             case 'opacity':
-                annotation.opacity = textProperties.opacity.value / 100;
-                document.getElementById("textOpacityText").value = textProperties.opacity.value + '%';
+                annotation.opacity = args.propertyValue.value/ 100;
+                document.getElementById("textOpacityText").value = args.propertyValue.value + '%';
                 break;
         }
-    };
-    // To update horizontal and vertical alignment of text
-    UtilityMethods.prototype.updateHorVertAlign = function(horizontalAlignment, verticalAlignment)
-    {
+    }
+
+    updateHorVertAlign(horizontalAlignment, verticalAlignment) {
         this.updateHorAlign(horizontalAlignment);
         this.updateVerAlign(verticalAlignment);
-    };
-    // To update horizontal alignment of text
-    UtilityMethods.prototype.updateHorAlign = function(horizontalAlignment){
+    }
+
+    updateHorAlign(horizontalAlignment) {
         var toolbarHorAlignment = document.getElementById('toolbarTextAlignmentLeft');
         if (toolbarHorAlignment) {
             toolbarHorAlignment = toolbarHorAlignment.ej2_instances[0];
@@ -631,9 +633,9 @@ var UtilityMethods = (function () {
             var index = horizontalAlignment === 'Right' ? 0 : (horizontalAlignment === 'Center' ? 1 : 2);
             toolbarHorAlignment.items[index].cssClass = toolbarHorAlignment.items[index].cssClass + ' tb-item-selected';
         }
-    };
-    // To update vertical alignment of text
-    UtilityMethods.prototype.updateVerAlign = function(verticalAlignment){
+    }
+
+    updateVerAlign(verticalAlignment) {
         var toolbarVerAlignment = document.getElementById('toolbarTextAlignmentTop');
         if (toolbarVerAlignment) {
             toolbarVerAlignment = toolbarVerAlignment.ej2_instances[0];
@@ -645,41 +647,31 @@ var UtilityMethods = (function () {
             var index = verticalAlignment === 'Bottom' ? 0 : (verticalAlignment === 'Center' ? 1 : 2);
             toolbarVerAlignment.items[index].cssClass = toolbarVerAlignment.items[index].cssClass + ' tb-item-selected';
         }
-    };
-    // To get the postion text annotation
-    UtilityMethods.prototype.getPosition = function(offset)
-    {
+    }
+
+    getPosition(offset) {
         if (offset.x === 0 && offset.y === 0) {
             return 'TopLeft';
-        }
-        else if (offset.x === 0.5 && offset.y === 0) {
+        } else if (offset.x === 0.5 && offset.y === 0) {
             return 'TopCenter';
-        }
-        else if (offset.x === 1 && offset.y === 0) {
+        } else if (offset.x === 1 && offset.y === 0) {
             return 'TopRight';
-        }
-        else if (offset.x === 0 && offset.y === 0.5) {
+        } else if (offset.x === 0 && offset.y === 0.5) {
             return 'MiddleLeft';
-        }
-        else if (offset.x === 1 && offset.y === 0.5) {
+        } else if (offset.x === 1 && offset.y === 0.5) {
             return 'MiddleRight';
-        }
-        else if (offset.x === 0 && offset.y === 1) {
+        } else if (offset.x === 0 && offset.y === 1) {
             return 'BottomLeft';
-        }
-        else if (offset.x === 0.5 && offset.y === 1) {
+        } else if (offset.x === 0.5 && offset.y === 1) {
             return 'BottomCenter';
-        }
-        else if (offset.x === 1 && offset.y === 1) {
+        } else if (offset.x === 1 && offset.y === 1) {
             return 'BottomRight';
-        }
-        else {
+        } else {
             return 'Center';
         }
-    };
-    // To get the gexcolor of color string
-    UtilityMethods.prototype.getHexColor = function(colorStr)
-    {
+    }
+
+    getHexColor(colorStr) {
         var a = document.createElement('div');
         a.style.color = colorStr;
         var colors = window.getComputedStyle(document.body.appendChild(a)).color.match(/\d+/g).map(function (a) {
@@ -687,17 +679,16 @@ var UtilityMethods = (function () {
         });
         document.body.removeChild(a);
         return (colors.length >= 3) ? '#' + (((1 << 24) + (colors[0] << 16) + (colors[1] << 8) + colors[2]).toString(16).substr(1)) : '';
-    };
-    UtilityMethods.prototype.getColor = function(colorName)
-    {
+    }
+
+    getColor(colorName) {
         if (window.navigator.msSaveBlob && colorName.length === 9) {
             return colorName.substring(0, 7);
         }
         return colorName;
-    };
-    // To get text offset
-    UtilityMethods.prototype.getOffset = function(position)
-    {
+    }
+
+    getOffset(position) {
         switch (position.toLowerCase()) {
             case 'topleft':
                 return { x: 0, y: 0 };
@@ -719,9 +710,8 @@ var UtilityMethods = (function () {
                 return { x: 1, y: 1 };
         }
     }
-    //To update bold italic and underline style selection
-    UtilityMethods.prototype.updateToolbarState = function(toolbarName, isSelected, index)
-    {
+
+    updateToolbarState(toolbarName, isSelected, index) {
         var toolbarTextStyle = document.getElementById(toolbarName);
         if (toolbarTextStyle) {
             toolbarTextStyle = toolbarTextStyle.ej2_instances[0];
@@ -731,11 +721,11 @@ var UtilityMethods = (function () {
             toolbarTextStyle.items[index].cssClass = isSelected ? cssClass + ' tb-item-selected' : cssClass.replace(' tb-item-selected', '');
             toolbarTextStyle.dataBind();
         }
-    };
-    // To apply node styles
-    UtilityMethods.prototype.applyNodeStyle = function(propertyName, node, value)
-    {
+    }
+
+    applyNodeStyle(propertyName, node, value) {
         var addInfo = node.addInfo || {};
+        var Value = value.value
         switch (propertyName) {
             case 'fillcolor':
                 node.style.fill = this.getColor(value);
@@ -745,17 +735,17 @@ var UtilityMethods = (function () {
                 }
                 break;
             case 'strokecolor':
-                node.style.strokeColor = this.getColor(nodeProperties.strokeColor.value);
+                node.style.strokeColor = this.getColor(Value);
                 break;
             case 'strokewidth':
-                node.style.strokeWidth = nodeProperties.strokeWidth.value;
+                node.style.strokeWidth = Value;
                 break;
             case 'strokestyle':
-                node.style.strokeDashArray = nodeProperties.strokeStyle.value;
+                node.style.strokeDashArray = Value;
                 break;
             case 'opacity':
-                node.style.opacity = nodeProperties.opacity.value / 100;
-                document.getElementById("nodeOpacitySliderText").value = nodeProperties.opacity.value + '%';
+                node.style.opacity = Value / 100;
+                document.getElementById("nodeOpacitySliderText").value = Value + '%';
                 break;
             case 'gradient':
                 if (value && value.value === 'Solid') {
@@ -770,42 +760,27 @@ var UtilityMethods = (function () {
                 NodeProperties.prototype.getGradient(node);
                 break;
         }
-    };
-    // To insert hyperlink
-    UtilityMethods.prototype.toolbarInsertClick = function(args)
-    {
-        if (diagram.selectedItems.nodes.length > 0) {
-                    document.getElementById('hyperlink').value = '';
-                    document.getElementById('hyperlinkText').value = '';
-                    if (diagram.selectedItems.nodes[0].annotations.length > 0) {
-                        var annotation = diagram.selectedItems.nodes[0].annotations[0];
-                        if (annotation.hyperlink.link || annotation.content) {
-                            document.getElementById('hyperlink').value = annotation.hyperlink.link;
-                            document.getElementById('hyperlinkText').value = annotation.hyperlink.content || annotation.content;
-                        }
-                    }
-                    hyperlinkDialog.show();
+    }
+
+    toolbarInsertClick(args) {
+        if (diagram.ej2_instances[0].selectedItems.nodes.length > 0) {
+            document.getElementById('hyperlink').value = '';
+            document.getElementById('hyperlinkText').value = '';
+            if (diagram.ej2_instances[0].selectedItems.nodes[0].annotations.length > 0) {
+                var annotation = diagram.ej2_instances[0].selectedItems.nodes[0].annotations[0];
+                if (annotation.hyperlink.link || annotation.content) {
+                    document.getElementById('hyperlink').value = annotation.hyperlink.link;
+                    document.getElementById('hyperlinkText').value = annotation.hyperlink.content || annotation.content;
+                }
+            }
+            hyperlinkDialog.ej2_instances[0].show();
         }
-    };
-    // To update aspect ratio
-    UtilityMethods.prototype.aspectRatioClick = function(args)
-    {
-    var isAspect = true;
-    if(document.getElementById('aspectRatioBtn').classList.contains('e-active'))
-    {
-        isAspect = true;
-        aspectRatioBtn.iconCss =  'sf-icon-lock'
     }
-    else{
-        isAspect = false;
-        aspectRatioBtn.iconCss = 'sf-icon-unlock';
-    }
-        PropertyChange.prototype.nodePropertyChange({propertyName: 'aspectRatio', propertyValue: isAspect}); 
-    };
-    // To get the buutons for the dialog.
-    UtilityMethods.prototype.getDialogButtons = function(dialogType)
-    {
-        var buttons= [];
+
+   
+
+    getDialogButtons(dialogType) {
+        var buttons = [];
         switch (dialogType) {
             case 'export':
                 buttons.push({
@@ -823,120 +798,74 @@ var UtilityMethods = (function () {
                     click: this.btnHyperLink.bind(this),
                     buttonModel: { content: 'Apply', cssClass: 'e-flat e-db-primary', isPrimary: true }
                 });
-                break; 
+                break;
         }
         buttons.push({
             click: this.btnCancelClick.bind(this),
-            buttonModel: { content: 'Cancel', cssClass: 'e-flat',isPrimary:true }
+            buttonModel: { content: 'Cancel', cssClass: 'e-flat', isPrimary: true }
         });
         return buttons;
-    };
-    // To add hyperlink
-    UtilityMethods.prototype.btnHyperLink = function()
-    {
-        var node = diagram.selectedItems.nodes[0];
-    if (node.annotations.length > 0) {
-        node.annotations[0].hyperlink.link = document.getElementById('hyperlink').value;
-        node.annotations[0].hyperlink.content = document.getElementById('hyperlinkText').value;
-        this.applyToolTipforHyperlink(node);
-        diagram.dataBind();
-    } else {
-        var annotation = {
-            hyperlink: {
-                content: document.getElementById('hyperlinkText').value,
-                link: document.getElementById('hyperlink').value
-            }
-        };
-        diagram.addLabels(node, [annotation]);
-        this.applyToolTipforHyperlink(node);
-        diagram.dataBind();
     }
-    hyperlinkDialog.hide();
-    };
-    UtilityMethods.prototype.applyToolTipforHyperlink = function(node)
-    {
+
+    btnHyperLink() {
+        var node = diagram.ej2_instances[0].selectedItems.nodes[0];
+        if (node.annotations.length > 0) {
+            node.annotations[0].hyperlink.link = document.getElementById('hyperlink').value;
+            node.annotations[0].hyperlink.content = document.getElementById('hyperlinkText').value;
+            this.applyToolTipforHyperlink(node);
+            diagram.ej2_instances[0].dataBind();
+        } else {
+            var annotation = {
+                hyperlink: {
+                    content: document.getElementById('hyperlinkText').value,
+                    link: document.getElementById('hyperlink').value
+                }
+            };
+            diagram.ej2_instances[0].addLabels(node, [annotation]);
+            this.applyToolTipforHyperlink(node);
+            diagram.ej2_instances[0].dataBind();
+        }
+        hyperlinkDialog.ej2_instances[0].hide();
+    }
+
+    applyToolTipforHyperlink(node) {
         node.constraints = ej.diagrams.NodeConstraints.Default & ~ej.diagrams.NodeConstraints.InheritTooltip | ej.diagrams.NodeConstraints.Tooltip;
         node.tooltip = {
             content: node.annotations[0].hyperlink.link, relativeMode: 'Object',
             position: 'TopCenter', showTipPointer: true,
         };
-    };
-    // To print the diagram
-    UtilityMethods.prototype.btnPrintClick = function()
-    {
-        var pageWidth = printSettings.pageWidth;
-        var pageHeight = printSettings.pageHeight;
-        var paperSize = this.getPaperSize(printSettings.paperSize);
-        if (paperSize.pageHeight && paperSize.pageWidth) {
-            pageWidth = paperSize.pageWidth;
-            pageHeight = paperSize.pageHeight;
-        }
-        if (pageSettings.isPortrait) {
-            if (pageWidth > pageHeight) {
-                var temp = pageWidth;
-                pageWidth = pageHeight;
-                pageHeight = temp;
-            }
-        } else {
-            if (pageHeight > pageWidth) {
-                var temp1 = pageHeight;
-                pageHeight = pageWidth;
-                pageWidth = temp1;
-            }
-        }
-        diagram.print({
-            region: printRegionDropdown.value, pageHeight: pageHeight, pageWidth: pageWidth,
-            multiplePage: !printMultiplePage.checked,
+    }
+
+    btnPrintClick() {
+        diagram.ej2_instances[0].print({
+            region: 'Content',
+            multiplePage: diagram.ej2_instances[0].pageSettings.multiplePage,
         });
-        printDialog.hide();
-    };
-    // To export diagram
-    UtilityMethods.prototype.btnExportClick = function()
-    {
-        diagram.exportDiagram({
+    }
+
+    btnExportClick() {
+        
+        diagram.ej2_instances[0].exportDiagram({
             fileName: document.getElementById("exportfileName").value,
             format: exportFormat.value,
-            region: exportRegion.value
+            region: exportRegion.value,
+            multiplePage: diagram.ej2_instances[0].pageSettings.multiplePage,
         });
-        exportDialog.hide();
-    };
-    // To get cancel button for dialog
-    UtilityMethods.prototype.btnCancelClick = function(args)
-    {
+        exportDialog.ej2_instances[0].hide();
+    }
+
+    btnCancelClick(args) {
         var ss = args.target;
         var key = ss.offsetParent.id;
         switch (key) {
             case 'exportDialog':
                 exportDialog.hide();
                 break;
-            case 'printDialog':
-                printDialog.hide();
-                break;
             case 'hyperlinkDialog':
                 hyperlinkDialog.hide();
                 break;
         }
-    };
-    // To hide property panel
-    UtilityMethods.prototype.hideElements = function(elementType, diagram)
-    {
-        var diagramContainer = document.getElementsByClassName('diagrambuilder-container')[0];
-        if (diagramContainer.classList.contains(elementType)) {
-                diagramContainer.classList.remove(elementType);
-                document.getElementById('hideProperty').style.backgroundColor = ''
-                document.getElementById('hideProperty').style.color = '#fff'
-                hidePropertyBtn.isPrimary = true;
-        }
-        else {
-            diagramContainer.classList.add(elementType);
-            document.getElementById('hideProperty').style.backgroundColor = '#e3e3e3'
-            document.getElementById('hideProperty').style.color = 'black'
+    }
 
-            hidePropertyBtn.isPrimary = false;
-        }
-        if (diagram) {
-            diagram.updateViewPort();
-        }
-    };
-    return UtilityMethods;
-}());
+}
+module.exports = UtilityMethods;

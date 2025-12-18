@@ -3,280 +3,27 @@ ej.diagrams.SymbolPalette.Inject(ej.diagrams.BpmnDiagrams);
 var conTypeBtn;
 var orderBtn;
 var hidePropertyBtn;
-var drawingNode;
+const DiagramClientSideEvents = require('./events.js');
+const UtilityMethods = require('./utilitymethods.js');
+const DropDownDataSources = require('./dropdowndatasource.js');
+const PropertyChange = require('./properties.js')
 var diagramEvents = new DiagramClientSideEvents();
-var dropDownDataSources = new DropDownDataSources();
-var propertyChange = new PropertyChange();
-var utilityMethods = new UtilityMethods();
-
-window.onload = function()
+const dataSourceInstance = new DropDownDataSources();
+const {
+    ConnectorProperties,
+    TextProperties,
+    ExportSettings,
+  } = require('./common.js');
+  const nodeProperties = require('./common.js');
+  const connectorProperties = require('./common.js');
+  const textProperties = require('./common.js');
+  var exportSettings = new ExportSettings();
+  window.onload = function()
 {
     document.onmouseover = menumouseover.bind(this);
    
     zoomCurrentValue = document.getElementById("btnZoomIncrement").ej2_instances[0];
 }
-
-var NodeProperties = (function () {
-    function NodeProperties() {
-        this.m_offsetX = 0;
-        this.m_offsetY = 0;
-        this.m_width = 0;
-        this.m_height = 0;
-        this.m_rotateAngle = 0;
-        this.m_fillColor = '#ffffff';
-        this.m_strokeColor = '#000000';
-        this.m_strokeStyle = 'None';
-        this.m_strokeWidth = 1;
-        this.m_opacity = 0;
-        this.opacityText = '0%';
-        this.m_aspectRatio = false;
-        this.m_gradient = false;
-        this.m_gradientDirection = 'BottomToTop';
-        this.m_gradientColor = '#ffffff';
-    }
-
-    NodeProperties.prototype.triggerPropertyChange = function (propertyName, propertyValue) {
-        if (!ej.base.isNullOrUndefined(this.propertyChange)) {
-            this.propertyChange.call(this, { propertyName: propertyName, propertyValue: propertyValue });
-        }
-    };
-    NodeProperties.prototype.getGradient = function (node) {
-        var gradientValue = this.getGradientDirectionValue(nodeProperties.gradientDirection.value);
-        node.style.gradient = {
-            type: 'Linear',
-            x1: gradientValue.x1, x2: gradientValue.x2, y1: gradientValue.y1, y2: gradientValue.y2,
-            stops: [
-                { color: node.style.fill, offset: 0 },
-                { color:UtilityMethods.prototype.getColor(nodeProperties.gradientColor.value), offset: 1 }
-            ]
-        };
-    };
-    NodeProperties.prototype.getGradientDirectionValue = function (direction) {
-        var gradientValue = {};
-        var x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-        if (direction === 'Left To Right' || direction === 'North') {
-            x1 = 100;
-        }
-        else if (direction === 'Bottom To Top' || direction === 'South') {
-            y2 = 100;
-        }
-        else if (direction === 'Right To Left' || direction === 'East') {
-            x2 = 100;
-        }
-        else {
-            y1 = 100;
-        }
-        gradientValue = { x1: x1, y1: y1, x2: x2, y2: y2 };
-        return gradientValue;
-    };
-    NodeProperties.prototype.getColor = function (colorName) {
-        if (window.navigator.msSaveBlob && colorName.length === 9) {
-            return colorName.substring(0, 7);
-        }
-        return colorName;
-    };
-
-    return NodeProperties;
-}());
-
-var nodeProperties = new NodeProperties();
-
-var ConnectorProperties = (function () {
-    function ConnectorProperties() {
-        this.m_lineColor = '#ffffff';
-    }
-    ConnectorProperties.prototype.triggerPropertyChange = function (propertyName, propertyValue) {
-        if (!ej.base.isNullOrUndefined(this.propertyChange)) {
-            this.propertyChange.call(this, { propertyName: propertyName, propertyValue: propertyValue });
-        }
-    };
-    return ConnectorProperties;
-}());
-
-var connectorProperties = new ConnectorProperties();
-
-var TextProperties = (function () {
-    function TextProperties() {
-        this.m_textPosition = '';
-        this.m_fontFamily = 'Arial';
-        this.m_fontColor = '#ffffff';
-        this.textPositionDataSource = this.getNodeTextPositions();
-    }
-    TextProperties.prototype.getNodeTextPositions = function () {
-        return [
-            { text: 'Top Left', value: 'TopLeft' }, { text: 'Top Center', value: 'TopCenter' },
-            { text: 'Top Right', value: 'TopRight' }, { text: 'Middle Left', value: 'MiddleLeft' },
-            { text: 'Center', value: 'Center' }, { text: 'Middle Right', value: 'MiddleRight' },
-            { text: 'Bottom Left', value: 'BottomLeft' }, { text: 'Bottom Center', value: 'BottomCenter' },
-            { text: 'Bottom Right', value: 'BottomRight' },
-        ];
-    };
-    TextProperties.prototype.getConnectorTextPositions = function () {
-        return [
-            { text: 'Before', value: 'Before' }, { text: 'Center', value: 'Center' },
-            { text: 'After', value: 'After' },
-        ];
-    };
-    TextProperties.prototype.triggerPropertyChange = function (propertyName, propertyValue) {
-        if (!ej.base.isNullOrUndefined(this.propertyChange)) {
-            this.propertyChange.call(this, { propertyName: propertyName, propertyValue: propertyValue });
-        }
-    };
-    return TextProperties;
-}());
-
-var textProperties = new TextProperties();
-
-
-var ExportSettings = (function () {
-    function ExportSettings() {
-        this.m_fileName = 'Diagram';
-        this.m_format = 'JPG';
-        this.m_region = 'PageSettings';
-    }
-    Object.defineProperty(ExportSettings.prototype, "fileName", {
-        get: function () {
-            return this.m_fileName;
-        },
-        set: function (fileName) {
-            this.m_fileName = fileName;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ExportSettings.prototype, "format", {
-        get: function () {
-            return this.m_format;
-        },
-        set: function (format) {
-            this.m_format = format;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ExportSettings.prototype, "region", {
-        get: function () {
-            return this.m_region;
-        },
-        set: function (region) {
-            this.m_region = region;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return ExportSettings;
-}());
-
-var exportSettings = new ExportSettings();
-
-var PrintSettings = (function () {
-    function PrintSettings() {
-        this.m_region = 'PageSettings';
-        this.m_pageWidth = 0;
-        this.m_pageHeight = 0;
-        this.m_isPortrait = true;
-        this.m_isLandscape = false;
-        this.m_multiplePage = false;
-        this.m_paperSize = 'Letter';
-    }
-    Object.defineProperty(PrintSettings.prototype, "region", {
-        get: function () {
-            return this.m_region;
-        },
-        set: function (region) {
-            this.m_region = region;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PrintSettings.prototype, "pageWidth", {
-        get: function () {
-            return this.m_pageWidth;
-        },
-        set: function (pageWidth) {
-            this.m_pageWidth = pageWidth;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PrintSettings.prototype, "pageHeight", {
-        get: function () {
-            return this.m_pageHeight;
-        },
-        set: function (pageHeight) {
-            this.m_pageHeight = pageHeight;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PrintSettings.prototype, "isPortrait", {
-        get: function () {
-            return this.m_isPortrait;
-        },
-        set: function (isPortrait) {
-            this.m_isPortrait = isPortrait;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PrintSettings.prototype, "isLandscape", {
-        get: function () {
-            return this.m_isLandscape;
-        },
-        set: function (isLandscape) {
-            this.m_isLandscape = isLandscape;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PrintSettings.prototype, "multiplePage", {
-        get: function () {
-            return this.m_multiplePage;
-        },
-        set: function (multiplePage) {
-            this.m_multiplePage = multiplePage;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PrintSettings.prototype, "paperSize", {
-        get: function () {
-            return this.m_paperSize;
-        },
-        set: function (paperSize) {
-            this.m_paperSize = paperSize;
-            document.getElementById('printCustomSize').style.display = 'none';
-            document.getElementById('printOrientation').style.display = 'none';
-            if (paperSize === 'Custom') {
-                document.getElementById('printCustomSize').style.display = '';
-            }
-            else {
-                document.getElementById('printOrientation').style.display = '';
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return PrintSettings;
-}());
-
-var printSettings = new PrintSettings();
-
-var PageSettings = (function () {
-    function PageSettings() {
-        this.pageWidth = 1056;
-        this.pageHeight = 816;
-        this.backgroundColor = '#ffffff';
-        this.isPortrait = false;
-        this.isLandscape = true;
-        this.paperSize = 'Letter';
-        this.pageBreaks = false;
-    }
-    return PageSettings;
-}());
-
-var pageSettings = new PageSettings();
-
 
 function renameDiagram(args) {
     document.getElementsByClassName('db-diagram-name-container')[0].classList.add('db-edit-name');
@@ -285,20 +32,6 @@ function renameDiagram(args) {
     element.focus();
     element.select();
 }
-
-function diagramNameKeyDown(args) {
-    if (args.which === 13) {
-        document.getElementById('diagramName').innerHTML = document.getElementById('diagramEditable').value;
-        document.getElementsByClassName('db-diagram-name-container')[0].classList.remove('db-edit-name');
-    }
-}
-
-function diagramNameChange(args) {
-    document.getElementById('diagramName').innerHTML = document.getElementById('diagramEditable').value;
-    document.getElementsByClassName('db-diagram-name-container')[0].classList.remove('db-edit-name');
-    document.getElementById("exportfileName").value = document.getElementById('diagramName').innerHTML;
-}
-
 // window.onload = function(){
 //     zoomCurrentValue = document.getElementById("btnZoomIncrement").ej2_instances[0];
 // }
@@ -494,7 +227,7 @@ var bpmnShapes = [
         shape: { type: 'Bpmn', flow: 'Association',association:'Default'}, 
     },
     {
-        id:'Message Flow',
+        id:'Message_Flow',
         sourcePoint: { x: 0, y: 0 }, targetPoint: { x: 30, y: 22 },type: 'Straight',
         sourceDecorator:{shape:'None'},targetDecorator:{shape:'Arrow',style:{fill:'white'}},
         style:{strokeDashArray:'4 4'}
@@ -714,314 +447,6 @@ var contextMenu = {
     showCustomMenuOnly: true,
 };
 
-var handles = [
-    {
-        name: 'Clone', pathData: 'M0,2.4879999 L0.986,2.4879999 0.986,9.0139999 6.9950027,9.0139999 6.9950027,10 0.986,10 C0.70400238,10 0.47000122,9.9060001 0.28100207,9.7180004 0.09400177,9.5300007 0,9.2959995 0,9.0139999 z M3.0050011,0 L9.0140038,0 C9.2960014,0 9.5300026,0.093999863 9.7190018,0.28199956 9.906002,0.47000027 10,0.70399952 10,0.986 L10,6.9949989 C10,7.2770004 9.906002,7.5160007 9.7190018,7.7110004 9.5300026,7.9069996 9.2960014,8.0049992 9.0140038,8.0049992 L3.0050011,8.0049992 C2.7070007,8.0049992 2.4650002,7.9069996 2.2770004,7.7110004 2.0890007,7.5160007 1.9950027,7.2770004 1.9950027,6.9949989 L1.9950027,0.986 C1.9950027,0.70399952 2.0890007,0.47000027 2.2770004,0.28199956 2.4650002,0.093999863 2.7070007,0 3.0050011,0 z',tooltip:{content:'Clone'},
-        visible: true, offset: 1, side: 'Bottom', margin: { top: 0, bottom: 0, left: 0, right: 0 }
-    },
-    {
-        name: 'Delete', pathData: 'M0.54700077,2.2130003 L7.2129992,2.2130003 7.2129992,8.8800011 C7.2129992,9.1920013 7.1049975,9.4570007 6.8879985,9.6739998 6.6709994,9.8910007 6.406,10 6.0939997,10 L1.6659999,10 C1.3539997,10 1.0890004,9.8910007 0.87200136,9.6739998 0.65500242,9.4570007 0.54700071,9.1920013 0.54700077,8.8800011 z M2.4999992,0 L5.2600006,0 5.8329986,0.54600048 7.7599996,0.54600048 7.7599996,1.6660004 0,1.6660004 0,0.54600048 1.9270014,0.54600048 z',tooltip:{content:'Delete'},
-        visible: true, offset: 0, side: 'Bottom', margin: { top: 0, bottom: 0, left: 0, right: 0 }
-    },
-    {
-        name: 'Draw', pathData: 'M3.9730001,0 L8.9730001,5.0000007 3.9730001,10.000001 3.9730001,7.0090005 0,7.0090005 0,2.9910006 3.9730001,2.9910006 z',tooltip:{content:'Draw'},
-        visible: true, offset: 0.5, side: 'Right', margin: { top: 0, bottom: 0, left: 0, right: 0 }
-    },
-];
-
-var btnFileMenu = new ej.splitbuttons.DropDownButton({
-    cssClass: 'db-dropdown-menu',
-    items: DropDownDataSources.prototype.getFileMenuItems(),
-    content: 'File',
-    select: function (args) { UtilityMethods.prototype.menuClick(args) },
-    beforeItemRender: beforeItemRender,
-    beforeOpen: arrangeMenuBeforeOpen,
-    beforeClose: arrangeMenuBeforeClose
-});
-btnFileMenu.appendTo('#btnFileMenu');
-
-
-var btnSelectMenu = new ej.splitbuttons.DropDownButton({
-    cssClass: 'db-dropdown-menu',
-    items:DropDownDataSources.prototype.getSelectMenuItems(),
-    content: 'Select',
-    select: function (args) { UtilityMethods.prototype.menuClick(args) },
-    beforeItemRender: beforeItemRender,
-    beforeOpen: arrangeMenuBeforeOpen,
-    beforeClose: arrangeMenuBeforeClose
-});
-btnSelectMenu.appendTo('#btnSelectMenu');
-
-
-
-var btnViewMenu = new ej.splitbuttons.DropDownButton({
-    cssClass: 'db-dropdown-menu',
-    items: DropDownDataSources.prototype.getViewMenuItems(),
-    content: 'View',
-    select: function (args) { UtilityMethods.prototype.menuClick(args) },
-    beforeItemRender: beforeItemRender,
-    beforeOpen: arrangeMenuBeforeOpen,
-    beforeClose: arrangeMenuBeforeClose
-});
-btnViewMenu.appendTo('#btnViewMenu');
-
-function viewSelectionChange(args)
-{
-    var items = btnViewMenu.items;
-    items[4].iconCss = diagram.pageSettings.showPageBreaks ? 'sf-icon-check-tick':'';
-    items[5].iconCss = diagram.pageSettings.multiplePage ? 'sf-icon-check-tick':'';
-    showPageBreaks.checked = diagram.pageSettings.showPageBreaks ? true:false;
-    pageBgColor.value = UtilityMethods.prototype.getHexColor(diagram.pageSettings.background.color);
-
-}
-
-function toolsContextMenuOpen (args) {
-    if (args.element.classList.contains('e-menu-parent')) {
-        var popup = document.querySelector('#btnToolsMenu-popup');
-        args.element.style.left = ej.base.formatUnit(parseInt(args.element.style.left, 10) - parseInt(popup.style.left, 10));
-        args.element.style.top = ej.base.formatUnit(parseInt(args.element.style.top, 10) - parseInt(popup.style.top, 10));
-    }
-}
-function designContextMenuOpen (args) {
-    if (args.element.classList.contains('e-menu-parent')) {
-        var popup = document.querySelector('#btnDesignMenu-popup');
-        args.element.style.left = ej.base.formatUnit(parseInt(args.element.style.left, 10) - parseInt(popup.style.left, 10));
-        args.element.style.top = ej.base.formatUnit(parseInt(args.element.style.top, 10) - parseInt(popup.style.top, 10));
-    }
-}
-function editContextMenuOpen (args) {
-    if (args.element.classList.contains('e-menu-parent')) {
-        var popup = document.querySelector('#btnEditMenu-popup');
-        args.element.style.left = ej.base.formatUnit(parseInt(args.element.style.left, 10) - parseInt(popup.style.left, 10));
-        args.element.style.top = ej.base.formatUnit(parseInt(args.element.style.top, 10) - parseInt(popup.style.top, 10));
-    }
-}
-
-function updateContextMenuSelection(boolean,args)
-{
-    if(diagram.selectedItems.nodes.length>0)
-    {
-        var bpmnNode = diagram.selectedItems.nodes[0];
-        var checked = boolean;
-        if(bpmnNode.shape.shape === 'Gateway')
-        {
-            if(!args.parentItem){
-                for(i = 0;i<args.items[21].items.length;i++)
-                {
-                    if((bpmnNode.shape.gateway.type === args.items[21].items[i].text || bpmnNode.shape.gateway.type === args.items[21].items[i].id) || !checked)
-                    {
-                        addTick(args,21,checked);
-                    }
-                }
-            }
-        }
-        else if(bpmnNode.shape.shape === 'Activity')
-        {
-            if(!args.parentItem)
-            {
-                if(bpmnNode.shape.activity.activity === 'Task')
-                {
-                    for(i=0;i<args.items[13].items.length;i++)
-                    {
-                        if(bpmnNode.shape.activity.activity === args.items[13].items[i].id || ! checked)
-                        {
-                            addTick(args,13,checked);
-                        }
-                    }
-                    for(i = 0 ;i<args.items[20].items.length;i++){
-                        if(bpmnNode.shape.activity.task.type === args.items[20].items[i].id || !checked )
-                        {
-                            addTick(args,20,checked);
-                        } 
-                    }
-                    if(bpmnNode.shape.activity.task.call)
-                    {
-                        singleItemTick(args,17,true);
-                    }
-                    else{
-                        singleItemTick(args,17,false);
-                    }
-                    for(i=0;i<args.items[11].items.length;i++)
-                    {
-                        if((bpmnNode.shape.activity.task.loop === args.items[11].items[i].text || bpmnNode.shape.activity.task.loop === args.items[11].items[i].id )|| ! checked)
-                        {
-                            addTick(args,11,checked);
-                        }
-                    }
-                    if(bpmnNode.shape.activity.task.compensation)
-                    {
-                        singleItemTick(args,12,true);
-                    }
-                    else{
-                        singleItemTick(args,12,false);
-                    }
-                }
-                else if(bpmnNode.shape.activity.activity === 'SubProcess'){
-                    for(i=0;i<args.items[13].items.length;i++)
-                    {
-                        if(bpmnNode.shape.activity.activity === args.items[13].items[i].id || ! checked)
-                        {
-                            addTick(args,13,checked);
-                        }
-                    }
-                    for(i=0;i<args.items[11].items.length;i++)
-                    {
-                        if((bpmnNode.shape.activity.subProcess.loop === args.items[11].items[i].text || bpmnNode.shape.activity.subProcess.loop === args.items[11].items[i].id )|| ! checked)
-                        {
-                            addTick(args,11,checked);
-                        }
-                    }
-                    for(i=0;i<args.items[14].items.length;i++)
-                    {
-                        if((bpmnNode.shape.activity.subProcess.boundary === args.items[14].items[i].text || bpmnNode.shape.activity.subProcess.boundary === args.items[14].items[i].id )|| ! checked)
-                        {
-                            addTick(args,14,checked);
-                        }
-                    }
-                    if(bpmnNode.shape.activity.subProcess.compensation)
-                    {
-                        singleItemTick(args,12,true);
-                    }
-                    else{
-                        singleItemTick(args,12,false);
-                    }
-                    if(bpmnNode.shape.activity.subProcess.adhoc)
-                    {
-                        singleItemTick(args,10,true);
-                    }
-                    else{
-                        singleItemTick(args,10,false);
-                    }
-                }
-            }
-        }
-        else if(bpmnNode.shape.shape === 'Event')
-        {
-            if(!args.parentItem)
-            {
-                for(i=0;i<args.items[19].items.length;i++){
-                    if((bpmnNode.shape.event.event === args.items[19].items[i].text || bpmnNode.shape.event.event === args.items[19].items[i].id) || !checked)
-                    {
-                        addTick(args,19,checked);
-                    }
-                }
-                for(i=0;i<args.items[18].items.length;i++){
-                    if(bpmnNode.shape.event.trigger === args.items[18].items[i].text || !checked)
-                    {
-                        addTick(args,18,checked);
-                    }
-                }
-            }
-        }
-        else if(bpmnNode.shape.shape === 'DataObject')
-        {
-            if(!args.parentItem)
-            {
-                for(i=0;i<args.items[15].items.length;i++){
-                    if(bpmnNode.shape.dataObject.type === args.items[15].items[i].text || !checked)
-                    {
-                        addTick(args,15,checked);
-                    }
-                }
-                if(bpmnNode.shape.dataObject.collection)
-                {
-                    singleItemTick(args,16,true);
-                }
-                else{
-                    singleItemTick(args,16,false);
-                }
-            }
-        }
-    }
-    if(diagram.selectedItems.connectors.length>0)
-    {
-        var bpmnConnector = diagram.selectedItems.connectors[0];
-        var checked = boolean;
-        if(bpmnConnector.shape.type === 'Bpmn'){
-            if(bpmnConnector.shape.flow === 'Association')
-            {
-                if(!args.parentItem){
-                    for(i=0;i<args.items[9].items.length;i++){
-                        if((bpmnConnector.shape.association === args.items[9].items[i].id || bpmnConnector.shape.association === args.items[9].items[i].text ) || !checked)
-                        {
-                            addTick(args,9,checked);
-                        }
-                    }
-                    singleItemTick(args,5,true);
-                    singleItemTick(args,6,false);
-                    singleItemTick(args,7,false);
-                }
-            }
-            if(bpmnConnector.shape.flow === 'Sequence')
-            {
-                if(!args.parentItem){
-                    for(i=0;i<args.items[8].items.length;i++){
-                        if((bpmnConnector.shape.sequence === args.items[8].items[i].text || bpmnConnector.shape.sequence ===  args.items[8].items[i].id) || !checked)
-                        {
-                            addTick(args,8,checked);
-                        }
-                    }
-                    singleItemTick(args,5,false);
-                    singleItemTick(args,6,true);
-                    singleItemTick(args,7,false);
-                }
-            }
-            if(bpmnConnector.shape.flow === 'Message')
-            {
-                if(!args.parentItem){
-                    for(i=0;i<args.items[22].items.length;i++){
-                        if((bpmnConnector.shape.message === args.items[22].items[i].text || bpmnConnector.shape.message === args.items[22].items[i].id) || !checked)
-                        {
-                            addTick(args,22,checked);
-                        }
-                    }
-                    singleItemTick(args,5,false);
-                    singleItemTick(args,6,false);
-                    singleItemTick(args,7,true);
-                }
-            }
-        }
-    }
-    
-}
-//...
-function singleItemTick(args,index,boolean)
-{
-    if(boolean)
-    {
-        if( args.items[index].iconCss.indexOf('sf-icon-check-tick') === -1){
-            args.items[index].iconCss+=' sf-icon-check-tick';
-        }
-    }
-    else{
-        if( args.items[index].iconCss.indexOf('sf-icon-check-tick') !== -1){
-            args.items[index].iconCss = args.items[index].iconCss.replace(' sf-icon-check-tick','');
-        }
-    }
-}
-
-function addTick(args,index,checked)
-{
-            if(checked){
-                if( args.items[index].items[i].iconCss.indexOf('sf-icon-check-tick') === -1){
-                    args.items[index].items[i].iconCss+=' sf-icon-check-tick';
-                }
-            }
-            else{
-                if( args.items[index].items[i].iconCss.indexOf('sf-icon-check-tick') !== -1){
-                    args.items[index].items[i].iconCss = args.items[index].items[i].iconCss.replace(' sf-icon-check-tick','');
-                }
-            }
-}
-
-function clearTick()
-{
-    if(diagram.selectedItems.nodes.length>0)
-    {
-
-    }
-}
-
 function arrangeMenuBeforeOpen(args)
 {
     for (var i = 0; i < args.element.children.length; i++) {
@@ -1231,11 +656,6 @@ function enableEditMenuItems(diagram)
             }  
 }
 
-    var disabledItems = ['Cut','Copy','Send To Back','Bring To Front','Delete'];
-    var undoRedoItems = ['Undo','Redo'];
-    var rotateItems = ['Rotate Clockwise','Rotate Counter Clockwise'];
-    var pasteItem = ['Paste'];
-
     //Initialize Toolbar component
     var toolbarObj = new ej.navigations.Toolbar({
         clicked: function (args) { UtilityMethods.prototype.toolbarClick(args)},
@@ -1262,18 +682,12 @@ function enableEditMenuItems(diagram)
         // overflowMode: 'Popup'
  });
  //Render initialized Toolbar component
- var items = [{ text: 'JPG' }, { text: 'PNG' }, { text: 'BMP' }, { text: 'SVG' }];
  var conTypeItems = [
                      {text: 'Straight',iconCss: 'sf-icon-straight_line'},
                      {text: 'Orthogonal',iconCss: 'sf-icon-orthogonal_line'},
                      {text: 'Bezier',iconCss: 'sf-icon-bezier'}
                     ];
-var orderItems = [
-    {text:'Bring Forward', iconCss:'sf-icon-bring-forward'},
-    {text:'Bring To Front', iconCss:'sf-icon-bring-to-front'},
-    {text:'Send Backward', iconCss:'sf-icon-send-backward'},
-    {text:'Send To Back', iconCss:'sf-icon-send-to-back'},
-]
+
 var zoomMenuItems = [
     { text: 'Zoom In' },{ text: 'Zoom Out' },{ text: 'Zoom to Fit' },{ text: 'Zoom to 50%' },
     { text: 'Zoom to 100%' },{ text: 'Zoom to 200%' },
@@ -1282,49 +696,7 @@ conTypeBtn = new ej.splitbuttons.DropDownButton({
     items: conTypeItems, iconCss:'sf-icon-orthogonal_line',
     select: function (args) {UtilityMethods.prototype.onConnectorSelect(args)}
 });
-// To enable toolbar items
-function enableToolbarItems(selectedItems) {
-    var toolbarContainer = document.getElementsByClassName('db-toolbar-container')[0];
-    var toolbarClassName = 'db-toolbar-container';
-    if (toolbarContainer.classList.contains('db-undo')) {
-        toolbarClassName += ' db-undo';
-    }
-    if (toolbarContainer.classList.contains('db-redo')) {
-        toolbarClassName += ' db-redo';
-    }
-    toolbarContainer.className = toolbarClassName;
-    if (selectedItems.length === 1) {
-        toolbarContainer.className = toolbarContainer.className + ' db-select';
-        if (selectedItems[0] instanceof ej.diagrams.Node) {
-            if (selectedItems[0].children) {
-                if (selectedItems[0].children.length > 2) {
-                    toolbarContainer.className = toolbarContainer.className + ' db-select db-double db-multiple db-node db-group';
-                }
-                else {
-                    toolbarContainer.className = toolbarContainer.className + ' db-select db-double db-node db-group';
-                }
-            }
-            else {
-                toolbarContainer.className = toolbarContainer.className + ' db-select db-node';
-            }
-        }
-    }
-    else if (selectedItems.length === 2) {
-        toolbarContainer.className = toolbarContainer.className + ' db-select db-double';
-    }
-    else if (selectedItems.length > 2) {
-        toolbarContainer.className = toolbarContainer.className + ' db-select db-double db-multiple';
-    }
-    if (selectedItems.length > 1) {
-        var isNodeExist = false;
-        for (var i = 0; i < selectedItems.length; i++) {
-            if (selectedItems[i] instanceof ej.diagrams.Node) {
-                toolbarContainer.className = toolbarContainer.className + ' db-select db-node';
-                break;
-            }
-        }
-    }
-};
+
 var uploadObj = new ej.inputs.Uploader({
     asyncSettings: {
         saveUrl: 'https://services.syncfusion.com/js/production/api/FileUploader/Save',
@@ -1336,29 +708,56 @@ var uploadObj = new ej.inputs.Uploader({
 uploadObj.appendTo('#fileupload');
 
 
- toolbarObj.appendTo('#toolbarEditor');
+ toolbarObj.appendTo('#toolbarObj');
  conTypeBtn.appendTo('#conTypeBtn');
  hidePropertyBtn = new ej.buttons.Button({
     iconCss:'sf-icon-properties',isPrimary: true
  });
  hidePropertyBtn.appendTo('#hideProperty');
 
-//  document.getElementById('hideProperty').onmouseup= (args)=>{
-//     UtilityMethods.prototype.hideElements('hide-properties',diagram);
-//  }
- function hideClicked()
- {
-    UtilityMethods.prototype.hideElements('hide-properties',diagram);
+ window.hideClicked = () =>{
+    hideElements('hide-properties', diagram);
  }
-// To flip diagram objects
-function flipObjects(flipType)
-{
-    var selectedObjects = diagram.selectedItems.nodes.concat(diagram.selectedItems.connectors);
- for(i=0;i<selectedObjects.length;i++)
- {
-    selectedObjects[i].flip = flipType === 'Flip Horizontal'? 'Horizontal':'Vertical';
- }
- diagram.dataBind();
+  
+document.getElementById('diagramName').onclick = (args)=>{
+    renameDiagram ();
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const editableElement = document.getElementById('diagramEditable');
+  
+    if (editableElement) {
+      editableElement.addEventListener('keydown', diagramNameKeyDown);
+      editableElement.addEventListener('focusout', diagramNameChange);
+    }
+    function diagramNameKeyDown(args) {
+      if (args.which === 13) {
+          document.getElementById('diagramName').innerHTML = document.getElementById('diagramEditable').value;
+          document.getElementsByClassName('db-diagram-name-container')[0].classList.remove('db-edit-name');
+      }
+    }
+    
+    function diagramNameChange(args) {
+      document.getElementById('diagramName').innerHTML = document.getElementById('diagramEditable').value;
+      document.getElementsByClassName('db-diagram-name-container')[0].classList.remove('db-edit-name');
+      document.getElementById("exportfileName").value = document.getElementById('diagramName').innerHTML;
+    }
+  });
+ function hideElements(elementType, diagram) {
+    var diagramContainer = document.getElementsByClassName('diagrambuilder-container')[0];
+    if (diagramContainer.classList.contains(elementType)) {
+        diagramContainer.classList.remove(elementType);
+        document.getElementById('hideProperty').style.backgroundColor = ''
+        document.getElementById('hideProperty').style.color = '#fff'
+        hidePropertyBtn.isPrimary = true;
+    } else {
+        diagramContainer.classList.add(elementType);
+        document.getElementById('hideProperty').style.backgroundColor = '#e3e3e3'
+        document.getElementById('hideProperty').style.color = 'black'
+        hidePropertyBtn.isPrimary = false;
+    }
+    if (diagram) {
+        diagram.updateViewPort();
+    }
 }
  function onUploadSuccess(args) {
     var file1 = args.file;
@@ -1366,31 +765,13 @@ function flipObjects(flipType)
     var reader = new FileReader();
     reader.readAsText(file);
     reader.onloadend = loadDiagram;
+    uploadObj.clearAll();
 }
 //Load the diagraming object.
 function loadDiagram(event) {
     diagram.loadDiagram(event.target.result);
 }
-// To lock diagram object
-function lockObject (args) {
-    for (var i = 0; i < diagram.selectedItems.nodes.length; i++) {
-        var node = diagram.selectedItems.nodes[i];
-        if (node.constraints & ej.diagrams.NodeConstraints.Drag) {
-            node.constraints = ej.diagrams.NodeConstraints.PointerEvents | ej.diagrams.NodeConstraints.Select;
-        } else {
-            node.constraints = ej.diagrams.NodeConstraints.Default;
-        }
-    }
-    for (var j = 0; j < diagram.selectedItems.connectors.length; j++) {
-        var connector = diagram.selectedItems.connectors[j];
-        if (connector.constraints & ej.diagrams.ConnectorConstraints.Drag) {
-            connector.constraints = ej.diagrams.ConnectorConstraints.PointerEvents | ej.diagrams.ConnectorConstraints.Select;
-        } else {
-            connector.constraints = ej.diagrams.ConnectorConstraints.Default;
-        }
-    }
-    diagram.dataBind();
-}
+
 // To perform zoom operation
  function zoomChange(args){
     var zoomCurrentValue = document.getElementById("btnZoomIncrement").ej2_instances[0];
@@ -1438,21 +819,21 @@ var diagram = new ej.diagrams.Diagram({
         orientation: 'Landscape',showPageBreaks:false,multiplePage : false
     },
     scrollSettings: { canAutoScroll: true, scrollLimit: 'Infinity', minZoom: 0.25, maxZoom: 30 },
-    getNodeDefaults: function (args) { DiagramClientSideEvents.prototype.getNodeDefaults(args); },
-    getConnectorDefaults:function (args) { DiagramClientSideEvents.prototype.getConnectorDefaults(args); },
+    getNodeDefaults: function (args) { diagramEvents.getNodeDefaults(args); },
+    getConnectorDefaults:function (args) { diagramEvents.getConnectorDefaults(args); },
     contextMenuSettings: contextMenu,
-    contextMenuClick:function (args) { DiagramClientSideEvents.prototype.contextMenuClick(args); },
-    contextMenuOpen:function (args) { DiagramClientSideEvents.prototype.contextMenuOpen(args); },
-    onUserHandleMouseDown:function (args) { DiagramClientSideEvents.prototype.userHandleClick(args); },
-    historyChange: function (args) { DiagramClientSideEvents.prototype.historyChange(args); },
+    contextMenuClick:function (args) { diagramEvents.contextMenuClick(args); },
+    contextMenuOpen:function (args) { diagramEvents.contextMenuOpen(args); },
+    onUserHandleMouseDown:function (args) { diagramEvents.userHandleClick(args); },
+    historyChange: function (args) { diagramEvents.historyChange(args); },
     // selectionChange:selectionChange, 
-    selectionChange: function (args) { DiagramClientSideEvents.prototype.selectionChange(args); },
-    positionChange: function (args) { DiagramClientSideEvents.prototype.positionChange(args); },
-    sizeChange: function (args) { DiagramClientSideEvents.prototype.sizeChange(args); },
-    rotateChange: function (args) { DiagramClientSideEvents.prototype.rotateChange(args); },
-    dragEnter:function (args) { DiagramClientSideEvents.prototype.dragEnter(args); },
-    created: function (args) { DiagramClientSideEvents.prototype.created(args);},
-    scrollChange: function (args) { DiagramClientSideEvents.prototype.scrollChange(args);},
+    selectionChange: function (args) { diagramEvents.selectionChange(args); },
+    positionChange: function (args) { diagramEvents.positionChange(args); },
+    sizeChange: function (args) { diagramEvents.sizeChange(args); },
+    rotateChange: function (args) { diagramEvents.rotateChange(args); },
+    dragEnter:function (args) { diagramEvents.dragEnter(args); },
+    created: function (args) { diagramEvents.created(args);},
+    scrollChange: function (args) { diagramEvents.scrollChange(args);},
     rulerSettings: {
         showRulers: true, dynamicGrid: true, horizontalRuler: { interval: 10,segmentWidth: 100,thickness: 25,markerColor:'#0078d4'},
         verticalRuler: { interval: 10,segmentWidth: 100,thickness: 25,markerColor:'#0078d4'},
@@ -1537,7 +918,7 @@ var diagram = new ej.diagrams.Diagram({
            return false
         },
         execute: function () {
-            flipObjects('Flip Horizontal');
+            UtilityMethods.prototype.flipObjects('Flip Horizontal');
         },
         gesture: {
             key: ej.diagrams.Keys.H,
@@ -1553,7 +934,7 @@ var diagram = new ej.diagrams.Diagram({
            return false
         },
         execute: function () {
-            flipObjects('Flip Vertical');
+            UtilityMethods.prototype.flipObjects('Flip Vertical');
         },
         gesture: {
             key: ej.diagrams.Keys.J,
@@ -1563,101 +944,18 @@ var diagram = new ej.diagrams.Diagram({
     ]}
 });
 
-var PaperSize = (function () {
-    function PaperSize() {
-    }
-    return PaperSize;
-}());
-
-//Create and add ports for node.
-function getNodePorts(obj) {
-    var ports = [
-        { id: 'left', shape: 'Circle', offset: { x: 0, y: 0.5 } },
-        { id: 'bottom', shape: 'Circle', offset: { x: 0.5, y: 1 } },
-        { id: 'right', shape: 'Circle', offset: { x: 1, y: 0.5 } },
-        { id: 'top', shape: 'Circle', offset: { x: 0.5, y: 0 } }
-    ];
-    return ports;
-}
     diagram.appendTo('#diagram');
-
-    var editContextMenu = new ej.navigations.ContextMenu({
-        animationSettings: { effect: 'None' },
-        items: DropDownDataSources.prototype.getEditMenuItems(),
-        onOpen: editContextMenuOpen,
-        cssClass: "EditMenu",
-        beforeItemRender: beforeItemRender,
-        select: function (args) { UtilityMethods.prototype.menuClick(args) },
-        beforeClose: arrangeMenuBeforeClose
-    })
-    editContextMenu.appendTo('#editContextMenu');
-
-    var designContextMenu = new ej.navigations.ContextMenu({
-        animationSettings: { effect: 'None' },
-        items:DropDownDataSources.prototype.getDesignMenuItems(),
-        onOpen: designContextMenuOpen,
-        cssClass: "DesignMenu",
-        beforeItemRender: beforeItemRender,
-        select: function (args) { UtilityMethods.prototype.menuClick(args) },
-        beforeClose: arrangeMenuBeforeClose
-    })
-    designContextMenu.appendTo('#designContextMenu');
-
-    var toolsContextMenu = new ej.navigations.ContextMenu({
-        animationSettings: { effect: 'None' },
-        items: DropDownDataSources.prototype.getToolsMenuItems(),
-        onOpen: toolsContextMenuOpen,
-        cssClass: "ToolsMenu",
-        beforeItemRender: beforeItemRender,
-        select: function (args) { UtilityMethods.prototype.menuClick(args) },
-        beforeClose: arrangeMenuBeforeClose
-    });
-    toolsContextMenu.appendTo('#toolsContextMenu');
-
-    var btnDesignMenu = new ej.splitbuttons.DropDownButton({
-        cssClass: 'db-dropdown-menu',
-        target: '.e-contextmenu-wrapper.designMenu',
-        content: 'Design',
-        select: function (args) { UtilityMethods.prototype.menuClick(args) },
-        beforeItemRender: beforeItemRender,
-        beforeOpen: arrangeMenuBeforeOpen,
-        beforeClose: arrangeMenuBeforeClose
-    });
-    btnDesignMenu.appendTo('#btnDesignMenu');
-    var btnToolsMenu = new ej.splitbuttons.DropDownButton({
-        cssClass: 'db-dropdown-menu',
-        target: '.e-contextmenu-wrapper.toolsMenu',
-        content: 'Tools',
-        select: function (args) { UtilityMethods.prototype.menuClick(args) },
-        beforeItemRender: beforeItemRender,
-        beforeOpen: arrangeMenuBeforeOpen,
-        beforeClose: arrangeMenuBeforeClose
-    });
-    btnToolsMenu.appendTo('#btnToolsMenu');
-
-    var btnEditMenu = new ej.splitbuttons.DropDownButton({
-        cssClass: 'db-dropdown-menu',
-        target: '.e-contextmenu-wrapper.editMenu',
-        content: 'Edit',
-        select: function (args) { UtilityMethods.prototype.menuClick(args) },
-       beforeItemRender: beforeItemRender,
-       beforeOpen: arrangeMenuBeforeOpen,
-       beforeClose: arrangeMenuBeforeClose
-    });
-    btnEditMenu.appendTo('#btnEditMenu');
-
-function minValue(){
-    var size;
-    if(diagram.selectedItems.nodes.length>0)
-    {
-      size =   diagram.selectedItems.nodes[0].annotations[0].style.fontSize;
-    }
-    else if(diagram.selectedItems.connectors.length>0){
-        size =   diagram.selectedItems.connectors[0].annotations[0].style.fontSize;
-    }
-    return size;
-}
-
+const menuItems = dataSourceInstance.menuItems;
+var menuBar = new ej.navigations.Menu({
+    content: 'Menu',
+    cssClass: 'db-dropdown-menu',
+    items: menuItems,
+    select: function (args) { UtilityMethods.prototype.menuClick(args) },
+    beforeItemRender: beforeItemRender,
+    beforeOpen: arrangeMenuBeforeOpen,
+    beforeClose: arrangeMenuBeforeClose,
+});
+menuBar.appendTo('#diagram-menu');
     var btnZoomIncrement = new ej.splitbuttons.DropDownButton({ items: zoomMenuItems, content: Math.round(diagram.scrollSettings.currentZoom*100) + ' %', select: zoomChange,
      });
     btnZoomIncrement.appendTo('#btnZoomIncrement');
@@ -1793,7 +1091,7 @@ aspectRatioBtn.appendTo('#aspectRatioBtn');
 nodeProperties.aspectRatio = aspectRatioBtn;
 
 document.getElementById('aspectRatioBtn').onclick = (args) =>{
-    UtilityMethods.prototype.aspectRatioClick(args);
+    PropertyChange.prototype.aspectRatioClick(args);
 }
 
    var rotateIconBtn = new ej.buttons.Button({ iconCss: 'sf-icon-rotate' });
@@ -1935,7 +1233,6 @@ var nodeOpacitySlider = new ej.inputs.Slider({
    }
 });
 nodeOpacitySlider.appendTo('#nodeOpacitySlider');
-nodeProperties.opacity =  nodeOpacitySlider;
 
 var lineTypeDropdown = new ej.dropdowns.DropDownList({
     dataSource:DropDownDataSources.prototype.lineTypes(),
@@ -2090,8 +1387,9 @@ fontFamily.appendTo('#fontFamily');
 textProperties.fontFamily = fontFamily;
 
 var fontSizeTextProperties = new ej.inputs.NumericTextBox({
-    min: 1,
+    min: 5,
     step: 1,
+    max:40,
     format: 'n0',
     change: function (args) {
         textProperties.fontSize.value = args.value;
@@ -2180,7 +1478,6 @@ var opacityTextSlider = new ej.inputs.Slider({
     }
 });
 opacityTextSlider.appendTo('#opacityTextSlider');
-textProperties.opacity = opacityTextSlider;
 
 
 function textPositionChange(args) {
@@ -2220,74 +1517,6 @@ var hyperlinkDialog = new ej.popups.Dialog({
     '</div></div><div class="row db-dialog-prop-row"><div class="row">Link Text (Optional)</div><div class="row db-dialog-child-prop-row"><input type="text" id="hyperlinkText"></div></div></div>'
 });
 hyperlinkDialog.appendTo('#hyperlinkDialog');
-
-var printDialog = new ej.popups.Dialog({
-    width: '335px',
-    header: 'Print Diagram',
-    target: document.body,
-    isModal: true,
-    animationSettings: { effect: 'None' },
-    buttons: UtilityMethods.prototype.getDialogButtons('print'),
-    visible: false,
-    showCloseIcon: true,
-    content: '<div id="printDialogContent"><div class="row"><div class="row">Region</div> <div class="row db-dialog-child-prop-row">' +
-    '<input type="text" id="printRegionDropdown"/> </div> </div><div class="row db-dialog-prop-row" style="margin-top: 16px"> <input id="printMultiplePage" type="checkbox" checked=true/> </div> </div>'
-});
-printDialog.appendTo('#printDialog');
-
-  // dropdown template for printDialog control
-  var printRegionDropdown = new ej.dropdowns.DropDownList({
-    dataSource:DropDownDataSources.prototype.diagramRegions(),
-    fields: { text: 'text', value: 'value' },
-    value: printSettings.region
-});
-printRegionDropdown.appendTo('#printRegionDropdown');
-
-  // dropdown template for printDialog control
-var printPaperSizeDropdown = new ej.dropdowns.DropDownList({
-    dataSource: DropDownDataSources.prototype.paperList(),
-    fields: { text: 'text', value: 'value' },
-    value: printSettings.paperSize
-});
-printPaperSizeDropdown.appendTo('#printPaperSizeDropdown');
-
-// numerictextbox template for printDialog control
-var printPageWidth = new ej.inputs.NumericTextBox({
-    min: 100,
-    step: 1,
-    format: 'n0',
-    value: printSettings.pageWidth
-});
-printPageWidth.appendTo('#printPageWidth');
-
-// numerictextbox template for printDialog control
-var printPageHeight = new ej.inputs.NumericTextBox({
-    min: 100,
-    step: 1,
-    format: 'n0',
-    value: printSettings.pageHeight
-});
-printPageHeight.appendTo('#printPageHeight');
-
-// radiobutton template for printDialog control
-var printPortrait = new ej.buttons.RadioButton({ label: 'Portrait', name: 'printSettings', checked: printSettings.isPortrait });
-printPortrait.appendTo('#printPortrait');
-
-// radiobutton template for printDialog control
-var printLandscape = new ej.buttons.RadioButton({ label: 'Landscape', name: 'printSettings', checked: printSettings.isLandscape });
-printLandscape.appendTo('#printLandscape');
-
-// checkbox template for printDialog control
-var printMultiplePage = new ej.buttons.CheckBox({ label: 'Scale to fit 1 page', checked: printSettings.multiplePage,
-change: function (args) {multiplePage(args); }
-});
-printMultiplePage.appendTo('#printMultiplePage');
-
-function multiplePage (args) {
-    if (args.event) {
-        printSettings.multiplePage = args.checked; 
-    }
-};
 
 var exportDialog = new ej.popups.Dialog({
     width: '400px',

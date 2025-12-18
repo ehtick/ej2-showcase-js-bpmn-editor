@@ -1,106 +1,103 @@
-var DropDownDataSources = (function () {
-    function DropDownDataSources() {
-    };
-    DropDownDataSources.prototype.getFileMenuItems = function()
-    {
-            var items = [
-                { text: 'New', iconCss: 'sf-icon-New' },
-                { text: 'Open', iconCss: 'sf-icon-Open' },
-                { separator: true },
-                { text: 'Save', iconCss: 'sf-icon-Save' },
-                { separator: true },
-                { text: 'Export', iconCss: 'sf-icon-Export',
-                    items:[
-                        {text:'JPG'},{text:'PNG'},{text:'BMP'},{text:'SVG'}
-                    ] },
-                { text: 'Print', iconCss: 'sf-icon-Print' },
-        
+class DropDownDataSources {
+    constructor() {}
+    menuItems = [
+        {
+            text: 'File',
+            items: [
+                { text: 'New', iconCss: 'sf-icon-new' }, { text: 'Open', iconCss: 'sf-icon-open' }, { separator: true },
+                { text: 'Save', iconCss: 'sf-icon-save' },
+                { text: 'Export', iconCss: 'sf-icon-export' }, { separator: true },
+                { text: 'Print', iconCss: 'sf-icon-print' }
             ]
-            return items;
-    };
-    DropDownDataSources.prototype.getEditMenuItems = function()
-    {
-        var items = [
-            { text: 'Undo', iconCss: 'sf-icon-undo' },
-            { text: 'Redo', iconCss: 'sf-icon-redo' },
-            { separator: true },
-            { text: 'Cut', iconCss: 'sf-icon-cut' },
-            { text: 'Copy', iconCss: 'sf-icon-copy' },
-            { text: 'Paste', iconCss: 'sf-icon-paste' },
-            { separator: true },
-            { text: 'Rotate',iconCss:'sf-icon-rotate', items:[
-                { text: 'Rotate Right 90', iconCss: 'sf-icon-rotate-clockwise' },
-                { text: 'Rotate Left 90', iconCss: 'sf-icon-rotate-counter-clockwise' },
-                { text: 'Flip Vertical', iconCss: 'sf-icon-flip-vertical' },
-                { text: 'Flip Horizontal', iconCss: 'sf-icon-flip-horizontal' },
-            ]},
-            { text: 'Delete', iconCss: 'sf-icon-delete' },
-            { separator: true },
-            {text: 'Order Commands',iconCss:'sf-icon-Order',
-                items:[ { text: 'Bring Forward', iconCss: 'sf-icon-bring-forward' },
-                        { text: 'Bring To Front', iconCss: 'sf-icon-bring-to-front' },
-                        { text: 'Send Backward', iconCss: 'sf-icon-send-backward' },
-                        { text: 'Send To Back', iconCss: 'sf-icon-send-to-back' },
-                        ]
-            } 
-        ]
-        return items;
-    };
-    DropDownDataSources.prototype.getDesignMenuItems = function()
-    {
-        var items = [
-            { text: 'Orientation',iconCss: 'sf-icon-page_orientation',
-            items:[
-                { text: 'Landscape', iconCss: 'sf-icon-check-tick' },
-                { text: 'Portrait', iconCss: '' }
-            ]    
-            },
-            { text: 'Size', iconCss: 'em-icons e-copy',
-            items:this.paperList1()
-            },
-        ]
-        return items;
-    };
-    DropDownDataSources.prototype.getToolsMenuItems = function()
-    {
-        var items1 = [
-            { text: 'Selection Tool',iconCss: 'sf-icon-pointer' },
-            { text: 'Pan Tool', iconCss: 'sf-icon-Pan tb-icons' },
-            { separator: true },
-            { text: 'Connector Tool',iconCss:'sf-icon-orthogonal_line',items:[
-                {text:'Straight',iconCss: 'sf-icon-straight_line'},
-                {text:'Orthogonal',iconCss: 'sf-icon-orthogonal_line'},
-                {text:'Bezier',iconCss: 'sf-icon-bezier'},
-            ] }
-        ]
-        return items1;
-    };
-    DropDownDataSources.prototype.getSelectMenuItems = function()
-    {
-        var items = [
-            { text: 'Select All', iconCss: 'em-icons e-cut' },
-            { text: 'Select All Nodes', iconCss: 'em-icons e-copy' },
-            { text: 'Select All Connectors', iconCss: 'em-icons e-paste' },
-            { text: 'Deselect All', iconCss: 'em-icons e-paste' }
-        ]
-        return items;
-    };
-    DropDownDataSources.prototype.getViewMenuItems = function()
-    {
-        var items = [
-            { text: 'Show Lines',iconCss: 'sf-icon-check-tick'},
-            { text: 'Snap To Grid',iconCss : 'sf-icon-check-tick'},
-            { text: 'Snap To Object',iconCss : 'sf-icon-check-tick'},
-            { text: 'Show Ruler',iconCss: 'sf-icon-check-tick'},
-            { text: 'Show Page Breaks',iconCss: ''},
-            { text: 'Show Multiple page',iconCss: ''},
-            { separator: true },
-            { text: 'Fit To Width'},
-            { text: 'Fit To Page'},
-        ]
-        return items;
-    };
-    DropDownDataSources.prototype.paperList = function()
+        },
+        {
+            text: 'Edit',
+            items: [
+                { text: 'Undo', iconCss: 'sf-icon-undo' },
+                { text: 'Redo', iconCss: 'sf-icon-redo' },
+                { separator: true },
+                { text: 'Cut', iconCss: 'sf-icon-cut' },
+                { text: 'Copy', iconCss: 'sf-icon-copy' },
+                { text: 'Paste', iconCss: 'sf-icon-paste' },
+                { separator: true },
+                {
+                    text: 'Rotate', iconCss: 'sf-icon-rotate',
+                    items: [
+                        { text: 'Rotate Right 90', iconCss: 'sf-icon-rotate-clockwise' },
+                        { text: 'Rotate Left 90', iconCss: 'sf-icon-rotate-counter-clockwise' },
+                        { text: 'Flip Vertical', iconCss: 'sf-icon-flip-vertical' },
+                        { text: 'Flip Horizontal', iconCss: 'sf-icon-flip-horizontal' },
+                    ]
+                },
+                { text: 'Delete', iconCss: 'sf-icon-delete' },
+                { separator: true },
+                {
+                    text: 'Order Commands', iconCss: 'sf-icon-Order',
+                    items: [{ text: 'Bring Forward', iconCss: 'sf-icon-bring-forward' },
+                    { text: 'Bring To Front', iconCss: 'sf-icon-bring-to-front' },
+                    { text: 'Send Backward', iconCss: 'sf-icon-send-backward' },
+                    { text: 'Send To Back', iconCss: 'sf-icon-send-to-back' },
+                    ]
+                }
+            ]
+        },
+        {
+            text: 'Design',
+            items: [
+                {
+                    text: 'Orientation', iconCss: 'sf-icon-page_orientation',
+                    items: [
+                        { text: 'Landscape', iconCss: 'sf-icon-check-tick' },
+                        { text: 'Portrait', iconCss: '' }
+                    ]
+                },
+                {
+                    text: 'Size', iconCss: 'em-icons e-copy',
+                    items: this.paperList1()
+                }
+            ]
+        },
+        {
+            text: 'Select',
+            items: [
+                { text: 'Select All', },
+                { text: 'Select All Nodes', },
+                { text: 'Select All Connectors', },
+                { text: 'Deselect All', }
+            ]
+        },
+        {
+            text: 'Tools',
+            items: [
+                { text: 'Selection Tool', iconCss: 'sf-icon-pointer' },
+                { text: 'Pan Tool', iconCss: 'sf-icon-pan tb-icons' },
+                { separator: true },
+                {
+                    text: 'Connector Tool', iconCss: 'sf-icon-orthogonal_line',
+                    items: [
+                        { text: 'Straight', iconCss: 'sf-icon-straight_line' },
+                        { text: 'Orthogonal', iconCss: 'sf-icon-orthogonal_line' },
+                        { text: 'Bezier', iconCss: 'sf-icon-bezier' },
+                    ]
+                }
+            ]
+        },
+        {
+            text: 'View',
+            items: [
+                { text: 'Show Lines', iconCss: 'sf-icon-check-tick' },
+                { text: 'Snap To Grid', iconCss: 'sf-icon-check-tick' },
+                { text: 'Snap To Object', iconCss: 'sf-icon-check-tick' },
+                { text: 'Show Ruler', iconCss: 'sf-icon-check-tick' },
+                { text: 'Show Page Breaks', iconCss: '' },
+                { text: 'Show Multiple Page', iconCss: '' },
+                { separator: true },
+                { text: 'Fit To Width' },
+                { text: 'Fit To Page' },
+            ]
+        },
+    ];
+    paperList()
     {
         var paperList = [
             { text: 'Letter (8.5 in x 11 in)', value: 'Letter' }, { text: 'Legal (8.5 in x 14 in)', value: 'Legal' },
@@ -110,7 +107,7 @@ var DropDownDataSources = (function () {
         ];
         return paperList;
     };
-    DropDownDataSources.prototype.paperList1 = function()
+    paperList1()
     {
         var paperList1 = [
             { text: 'Letter (8.5 in x 11 in)', value: 'Letter',iconCss:'sf-icon-check-tick' }, { text: 'Legal (8.5 in x 14 in)', value: 'Legal' },
@@ -120,7 +117,7 @@ var DropDownDataSources = (function () {
         ];
         return paperList1;
     };
-    DropDownDataSources.prototype.fileFormats = function()
+    fileFormats()
     {
         var fileFormats = [
             { text: 'JPG', value: 'JPG' }, { text: 'PNG', value: 'PNG' },
@@ -128,14 +125,14 @@ var DropDownDataSources = (function () {
         ];
         return fileFormats;
     };
-    DropDownDataSources.prototype.diagramRegions = function()
+    diagramRegions()
     {
         var diagramRegions = [
             { text: 'Content', value: 'Content' }, { text: 'PageSettings', value: 'PageSettings' }
         ];
         return diagramRegions;
     };
-    DropDownDataSources.prototype.borderStyles= function()
+    borderStyles()
     {
         var borderStyles = [
             { text: '', value: '', className: 'ddl-svg-style ddl_linestyle_none' },
@@ -146,7 +143,7 @@ var DropDownDataSources = (function () {
         ];
         return borderStyles;
     };
-    DropDownDataSources.prototype.lineStyles= function()
+    lineStyles()
     {
         var lineStyles = [
             { text: '', value: '', className: 'ddl-svg-style ddl_linestyle_none' },
@@ -157,7 +154,7 @@ var DropDownDataSources = (function () {
         ];
         return lineStyles;
     };
-    DropDownDataSources.prototype.gradientDirections = function()
+    gradientDirections()
     {
         var gradientDirections = [
             { text: 'Bottom To Top', value: 'BottomToTop',iconCss: 'sf-icon-bottom-top' }, { text: 'Top To Bottom', value: 'TopToBottom',iconCss:'sf-icon-top-bottom' },
@@ -165,7 +162,7 @@ var DropDownDataSources = (function () {
         ];
         return gradientDirections;
     };
-    DropDownDataSources.prototype.lineTypes = function()
+    lineTypes()
     {
         var lineTypes = [
             { text: 'Straight', value: 'Straight' }, { text: 'Orthogonal', value: 'Orthogonal' },
@@ -173,7 +170,7 @@ var DropDownDataSources = (function () {
         ];
         return lineTypes;
     };
-    DropDownDataSources.prototype.decoratorList = function()
+    decoratorList()
     {
         var decoratorList = [
             { text: 'None', value: 'None' },
@@ -190,7 +187,7 @@ var DropDownDataSources = (function () {
         ];
         return decoratorList;
     };
-    DropDownDataSources.prototype.fontFamilyList = function()
+    fontFamilyList()
     {
         var fontFamilyList = [
             { text: 'Arial', value: 'Arial' },
@@ -203,7 +200,7 @@ var DropDownDataSources = (function () {
         ];
         return fontFamilyList;
     };
-    DropDownDataSources.prototype.textPositionDataSource = function()
+    textPositionDataSource()
     {
         var textPosition = [
             { text: 'Top Left', value: 'TopLeft' }, { text: 'Top Center', value: 'TopCenter' },
@@ -214,7 +211,7 @@ var DropDownDataSources = (function () {
         ];
         return textPosition;
     };
-    DropDownDataSources.prototype.toolbarItems = function()
+    toolbarItems()
     {
         let items = [
             { prefixIcon: 'sf-icon-undo tb-icons', tooltipText: 'Undo',cssClass: 'tb-item-start tb-item-undo' },
@@ -263,11 +260,11 @@ var DropDownDataSources = (function () {
             {
                 cssClass: 'tb-item-end tb-zoom-dropdown-btn',tooltipText:'Zoom', template: '<button id="btnZoomIncrement"></button>',align:'Right'
             },
-            { prefixIcon: 'sf-icon-properties' , tooltipText: 'Hide/Show property',template:'<button id="hideProperty" onClick="hideClicked()"></button>',align:'Right'}
+            { prefixIcon: 'sf-icon-properties' , tooltipText: 'Hide/Show property',template:'<button id="hideProperty" onclick="hideClicked()"></button>',align:'Right'}
         ];
         return items;
     };
-    DropDownDataSources.prototype.borderTypeList = function()
+    borderTypeList()
     {
         let borderTypes = [
             {text: 'Solid', value:'Solid'},
@@ -275,5 +272,5 @@ var DropDownDataSources = (function () {
         ]
         return borderTypes;
     };
-    return DropDownDataSources;
-}());
+   }
+   module.exports = DropDownDataSources;   

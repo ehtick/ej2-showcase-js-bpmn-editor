@@ -1,31 +1,40 @@
-var PropertyChange = (function () {
-    function PropertyChange() {
-    };
-    PropertyChange.prototype.nodePropertyChange = function(args)
+var UtilityMethods = require("./utilitymethods.js")
+const {
+  NodeProperties,
+  ConnectorProperties,
+  TextProperties,
+} = require('./common');
+
+var nodeProperties = new NodeProperties();
+var textProperties = new TextProperties();
+var connectorProperties =  new ConnectorProperties();
+class PropertyChange  {
+    constructor() {}
+    nodePropertyChange(args)
     {
            if (!diagram.preventPropertyChange) {
                if (diagram) {
-                   if (diagram.selectedItems.nodes.length > 0) {
-                       var selectedNodes = diagram.selectedItems.nodes;
+                   if (diagram.ej2_instances[0].selectedItems.nodes.length > 0) {
+                       var selectedNodes = diagram.ej2_instances[0].selectedItems.nodes;
                        for (var i = 0; i < selectedNodes.length; i++) {
                            var node = selectedNodes[i];
                            var propertyName1 = args.propertyName.toString().toLowerCase();
                            switch (propertyName1) {
                                case 'offsetx':
-                                   node.offsetX = nodeProperties.offsetX.value;
-                                   nodeOffsetX.value = nodeProperties.offsetX.value;
+                                   node.offsetX = args.propertyValue.value;
+                                   nodeOffsetX.value = args.propertyValue.value;
                                    break;
                                case 'offsety':
-                                   node.offsetY = nodeProperties.offsetY.value;
+                                   node.offsetY = args.propertyValue.value;
                                    break;
                                case 'width':
-                                   node.width = nodeProperties.width.value;
+                                   node.width = args.propertyValue.value;
                                    break;
                                case 'height':
-                                   node.height = nodeProperties.height.value;
+                                   node.height = args.propertyValue.value;
                                    break;
                                case 'rotateangle':
-                                   node.rotateAngle = nodeProperties.rotateAngle.value;
+                                   node.rotateAngle = args.propertyValue.value;
                                    break;
                                case 'aspectratio':
                                    node.constraints = node.constraints ^ ej.diagrams.NodeConstraints.AspectRatio;
@@ -42,45 +51,63 @@ var PropertyChange = (function () {
                        }
                        this.isModified = true;
                    }
-                   if (diagram.connectors.length > 0) {
-                       var selectedNodes = diagram.selectedItems.connectors;
+                   if (diagram.ej2_instances[0].selectedItems.connectors.length > 0) {
+                       const selectedNodes = diagram.ej2_instances[0].selectedItems.connectors;
                        for (var i = 0; i < selectedNodes.length; i++) {
+                        var connector = selectedNodes[i];
                            switch (args.propertyName.toString().toLowerCase()) {
                                case 'strokecolor':
-                                   connectorProperties.lineColor.value = UtilityMethods.prototype.getColor(nodeProperties.strokeColor.value);
+                                   connector.style.strokeColor = UtilityMethods.prototype.getColor(args.propertyValue.value);
+                                   connector.sourceDecorator.style = { fill: connector.style.strokeColor, strokeColor: connector.style.strokeColor };
+                                   connector.targetDecorator.style = { fill: connector.style.strokeColor, strokeColor: connector.style.strokeColor };
                                    break;
                                case 'strokewidth':
-                                   connectorProperties.lineWidth.value = nodeProperties.strokeWidth.value;
+                                   connector.style.strokeWidth = args.propertyValue.value;
+                                   if (connector.sourceDecorator.style) {
+                                       connector.sourceDecorator.style.strokeWidth = connector.style.strokeWidth;
+                                   }
+                                   else {
+                                       connector.sourceDecorator.style = { strokeWidth: connector.style.strokeWidth };
+                                   }
+                                   if (connector.targetDecorator.style) {
+                                       connector.targetDecorator.style.strokeWidth = connector.style.strokeWidth;
+                                   }
+                                   else {
+                                       connector.targetDecorator.style = { strokeWidth: connector.style.strokeWidth };
+                                   }
                                    break;
                                case 'strokestyle':
-                                   connectorProperties.lineStyle.value = nodeProperties.strokeStyle.value;
+                                   connector.style.strokeDashArray = args.propertyValue.value;
                                    break;
                                case 'opacity':
-                                   connectorProperties.opacity.value = nodeProperties.opacity.value;
+                                   connector.style.opacity = args.propertyValue.value / 100;
+                                   connector.targetDecorator.style.opacity = connector.style.opacity;
+                                   connector.sourceDecorator.style.opacity = connector.style.opacity;
+                                   document.getElementById("connectorOpacitySliderText").value = args.propertyValue.value + '%';
                                    break;
                            }
                        }
                        this.isModified = true;
                    }
-                   diagram.dataBind();
+                   diagram.ej2_instances[0].selectedItems.dataBind();
                }
        }
     };
-    PropertyChange.prototype.connectorPropertyChange = function(args)
+    connectorPropertyChange(args)
     {
             if (!diagram.preventPropertyChange) {
-                if (diagram && diagram.selectedItems.connectors.length > 0) {
-                    var selectedNodes = diagram.selectedItems.connectors;
+                if (diagram && diagram.ej2_instances[0].selectedItems.connectors.length > 0) {
+                    var selectedNodes = diagram.ej2_instances[0].selectedItems.connectors;
                     for (var i = 0; i < selectedNodes.length; i++) {
                         var connector = selectedNodes[i];
                         switch (args.propertyName.toString().toLowerCase()) {
                             case 'linecolor':
-                                connector.style.strokeColor = UtilityMethods.prototype.getColor(connectorProperties.lineColor.value);
+                                connector.style.strokeColor = UtilityMethods.prototype.getColor(args.propertyValue.value);
                                 connector.sourceDecorator.style = { fill: connector.style.strokeColor, strokeColor: connector.style.strokeColor };
                                 connector.targetDecorator.style = { fill: connector.style.strokeColor, strokeColor: connector.style.strokeColor };
                                 break;
                             case 'linewidth':
-                                connector.style.strokeWidth = connectorProperties.lineWidth.value;
+                                connector.style.strokeWidth = args.propertyValue.value;
                                 if (connector.sourceDecorator.style) {
                                     connector.sourceDecorator.style.strokeWidth = connector.style.strokeWidth;
                                 }
@@ -95,28 +122,28 @@ var PropertyChange = (function () {
                                 }
                                 break;
                             case 'linestyle':
-                                connector.style.strokeDashArray = connectorProperties.lineStyle.value;
+                                connector.style.strokeDashArray = args.propertyValue.value;
                                 break;
                             case 'linetype':
-                                connector.type = connectorProperties.lineType.value;
+                                connector.type = args.propertyValue.value;
                                 break;
                             case 'sourcetype':
-                                connector.sourceDecorator.shape = connectorProperties.sourceType.value;
+                                connector.sourceDecorator.shape = args.propertyValue.value;
                                 break;
                             case 'targettype':
-                                connector.targetDecorator.shape = connectorProperties.targetType.value;
+                                connector.targetDecorator.shape = args.propertyValue.value;
                                 break;
                             case 'sourcesize':
-                                connector.sourceDecorator.width = connector.sourceDecorator.height = connectorProperties.sourceSize.value;
+                                connector.sourceDecorator.width = connector.sourceDecorator.height = args.propertyValue.value;
                                 break;
                             case 'targetsize':
-                                connector.targetDecorator.width = connector.targetDecorator.height = connectorProperties.targetSize.value;
+                                connector.targetDecorator.width = connector.targetDecorator.height = args.propertyValue.value;
                                 break;
                             case 'opacity':
-                                connector.style.opacity = connectorProperties.opacity.value / 100;
+                                connector.style.opacity = args.propertyValue.value / 100;
                                 connector.targetDecorator.style.opacity = connector.style.opacity;
                                 connector.sourceDecorator.style.opacity = connector.style.opacity;
-                                document.getElementById("connectorOpacitySliderText").value = connectorProperties.opacity.value + '%';
+                                document.getElementById("connectorOpacitySliderText").value = args.propertyValue.value + '%';
                                 break;
                             case 'linejump':
                                 if (args.propertyValue.checked) {
@@ -127,21 +154,21 @@ var PropertyChange = (function () {
                                 }
                                 break;
                             case 'linejumpsize':
-                                connector.bridgeSpace = connectorProperties.lineJumpSize.value;
+                                connector.bridgeSpace = args.propertyValue.value;
                                 break;
                         }
                     }
-                    diagram.dataBind();
+                    diagram.ej2_instances[0].dataBind();
                     this.isModified = true;
                 }
             }
     };
-    PropertyChange.prototype.textPropertyChange = function(args)
+    textPropertyChange(args)
     {
             if (!diagram.preventPropertyChange) {
                 if (diagram) {
-                    var selectedObjects = diagram.selectedItems.nodes;
-                    selectedObjects = selectedObjects.concat(diagram.selectedItems.connectors);
+                    var selectedObjects = diagram.ej2_instances[0].selectedItems.nodes;
+                    selectedObjects = selectedObjects.concat(diagram.ej2_instances[0].selectedItems.connectors);
                     var propertyName = args.propertyName.toString().toLowerCase();
                     if (selectedObjects.length > 0) {
                         for (var i = 0; i < selectedObjects.length; i++) {
@@ -150,25 +177,26 @@ var PropertyChange = (function () {
                                 if (node.annotations.length > 0) {
                                     for (var j = 0; j < node.annotations.length; j++) {
                                         var annotation = node.annotations[j].style;
-                                        UtilityMethods.prototype.updateTextFontProperties(propertyName, annotation);
+                                        UtilityMethods.prototype.updateTextFontProperties(propertyName, annotation, args);
                                     }
                                 }
                                 else if (node.shape && node.shape.type === 'Text') {
-                                    UtilityMethods.prototype.updateTextFontProperties(propertyName, node.style);
+                                    UtilityMethods.prototype.updateTextFontProperties(propertyName, node.style, args);
                                 }
+                               
                             }
                         }
-                        diagram.dataBind();
+                        diagram.ej2_instances[0].dataBind();
                         this.isModified = true;
                     }
                 }
             }
     };
-    PropertyChange.prototype.textPropertiesChange = function(propertyName,propertyValue)
+    textPropertiesChange(propertyName,propertyValue)
     {
         if (!diagram.preventPropertyChange) {
-            var selectedObjects = diagram.selectedItems.nodes;
-            selectedObjects = selectedObjects.concat(diagram.selectedItems.connectors);
+            var selectedObjects = diagram.ej2_instances[0].selectedItems.nodes;
+            selectedObjects = selectedObjects.concat(diagram.ej2_instances[0].selectedItems.connectors);
             propertyName = propertyName.toLowerCase();
             if (selectedObjects.length > 0) {
                 for (var i = 0; i < selectedObjects.length; i++) {
@@ -213,9 +241,20 @@ var PropertyChange = (function () {
                         }
                     }
                 }
-                diagram.dataBind();
+                diagram.ej2_instances[0].dataBind();
             }
         }
     }
-    return PropertyChange;
-}());
+    aspectRatioClick(args) {
+        var isAspect = true;
+        if (document.getElementById('aspectRatioBtn').classList.contains('e-active')) {
+            isAspect = true;
+            aspectRatioBtn.ej2_instances[0].iconCss = 'sf-icon-lock'
+        } else {
+            isAspect = false;
+            aspectRatioBtn.ej2_instances[0].iconCss = 'sf-icon-unlock';
+        }
+      this.nodePropertyChange({ propertyName: 'aspectRatio', propertyValue: isAspect });
+    }
+}
+module.exports = PropertyChange;   

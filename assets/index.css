@@ -333,3 +333,11 @@ textarea.e-input,
 .e-diagram-menu .e-order::before {
   content: '\e4a4';
 }
+
+.e-menu-wrapper .e-menu{
+  margin-top: -5px!important;
+  color: white !important;
+  }
+  .e-menu-wrapper ul .e-menu-item .e-caret, .e-menu-container ul .e-menu-item .e-caret {
+  visibility: collapse !important;
+  }
